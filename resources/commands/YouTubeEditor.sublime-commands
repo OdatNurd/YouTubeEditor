@@ -1,0 +1,24 @@
+[
+    { "caption": "YouTubeEditor: Login",       "command": "youtube_editor_authorize" },
+    { "caption": "YouTubeEditor: List Videos", "command": "youtube_editor_list_videos" },
+
+    { "caption": "YouTubeEditor: New Window", "command": "youtube_editor_new_window" },
+
+    {
+        "caption": "Preferences: YouTubeEditor Settings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/YouTubeEditor/resources/settings/YouTubeEditor.sublime-settings",
+            "default": "{\n\t$0\n}\n"
+        }
+    },
+    {
+        "caption": "Preferences: YouTubeEditor Key Bindings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/YouTubeEditor/resources/keymaps/Default ($platform).sublime-keymap",
+            "default": "[\n\t$0\n]\n"
+        }
+    },
+
+]

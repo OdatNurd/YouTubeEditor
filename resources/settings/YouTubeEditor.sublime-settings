@@ -1,0 +1,23 @@
+{
+    // In order to use the package, you *MUST* override the following settings
+    // in your user specific package settings. This requires that you set up an
+    // application with the Installed OAuth2 flow. The result is google providing
+    // you with this information.
+    //
+    // *** WARNING ***
+    // This information allows anyone that has it to pose as your application,
+    // so it is vital that you keep this information secret.
+    // *** WARNING ***
+
+    // The unique Client Identifier of your Google Application
+    "client_id": "",
+
+    // The unique Client secret for your GOogle Application
+    "client_secret": "",
+
+    // The URI to submit to for authorization
+    "auth_uri": "",
+
+    // The URI to submit to for token requests
+    "token_uri": ""
+}

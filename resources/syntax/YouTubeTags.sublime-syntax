@@ -1,0 +1,12 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+scope: text.youtube.tags
+name: Video Tags
+hidden: true
+contexts:
+  main:
+    - match: ','
+      scope: keyword.other.any.tags
+    - match: \w+
+      scope: variable.function.tags

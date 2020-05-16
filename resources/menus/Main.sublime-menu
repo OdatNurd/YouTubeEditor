@@ -1,0 +1,62 @@
+[
+    {
+        "id": "tools",
+        "children":
+        [
+            {
+                "caption": "YouTubeEditor",
+                "children":
+                [
+                    { "caption": "Login…", "command": "youtube_editor_authorize"},
+                    { "caption": "Logout", "command": "youtube_editor_logout"},
+                    { "caption": "-" },
+                    { "caption": "Display Video List", "command": "youtube_editor_list_videos"},
+                    { "caption": "-" },
+                    { "caption": "New Window", "command": "youtube_editor_new_window"},
+                ]
+            }
+        ]
+    },
+
+    {
+        "caption": "Preferences",
+        "mnemonic": "n",
+        "id": "preferences",
+        "children":
+        [
+            {
+                "caption": "Package Settings",
+                "mnemonic": "P",
+                "id": "package-settings",
+                "children":
+                [
+                    {
+                        "caption": "YouTubeEditor",
+                        "children":
+                        [
+                            {
+                                "caption": "Settings",
+                                "command": "edit_settings",
+                                "args": {
+                                    "base_file": "${packages}/YouTubeEditor/resources/settings/YouTubeEditor.sublime-settings",
+                                    "default": "{\n\t$0\n}\n"
+                                }
+                            },
+
+                            { "caption": "-" },
+
+                            {
+                                "caption": "Key Bindings",
+                                "command": "edit_settings",
+                                "args": {
+                                    "base_file": "${packages}/YouTubeEditor/resources/keymaps/Default ($platform).sublime-keymap",
+                                    "default": "[\n\t$0\n]\n"
+                                }
+                            },
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

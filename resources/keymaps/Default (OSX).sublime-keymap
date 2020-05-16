@@ -1,0 +1,17 @@
+[
+    {
+        "keys": ["tab"],
+        "command": "youtube_editor_next_view", "context": [
+            { "key": "setting.youtube_view" },
+        ]
+    },
+    {
+        "keys": ["shift+tab"],
+        "command": "youtube_editor_next_view", "args": {
+            "prev": true
+        },
+        "context": [
+            { "key": "setting.youtube_view" },
+        ]
+    },
+]

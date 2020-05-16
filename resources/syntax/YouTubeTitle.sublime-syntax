@@ -1,0 +1,14 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+scope: text.youtube.title
+name: Video Title
+hidden: true
+contexts:
+  main:
+    - match: '(\[)([A-Za-z]+|(\w+)-)(\d+)(\])'
+      captures:
+        1: keyword.other.tag
+        2: entity.name.tag
+        3: constant.numeric.tag
+        4: keyword.other.tag

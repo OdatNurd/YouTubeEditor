@@ -1,0 +1,16 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+scope: text.youtube.body
+name: Video Description
+hidden: true
+contexts:
+  main:
+    - match: '^.*\n'
+      scope: entity.name.function
+      push:
+          - match: '(?:\b(https?|ftp|file)://)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]'
+            scope: markup.underline.link.youtube
+
+          - match: '#\w+'
+            scope: entity.name.tag.youtube
