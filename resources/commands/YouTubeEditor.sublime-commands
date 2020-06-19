@@ -1,6 +1,7 @@
 [
     { "caption": "YouTubeEditor: Login",       "command": "youtube_editor_authorize" },
     { "caption": "YouTubeEditor: List Videos", "command": "youtube_editor_list_videos" },
+    { "caption": "YouTubeEditor: Get Video Details", "command": "youtube_editor_video_details" },
 
     { "caption": "YouTubeEditor: New Window", "command": "youtube_editor_new_window" },
 

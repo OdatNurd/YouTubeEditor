@@ -371,7 +371,8 @@ class NetworkThread(Thread):
             "authorize": self.authenticate,
             "deauthorize": self.deauthenticate,
             "uploads_playlist": self.uploads_playlist,
-            "playlist_contents": self.playlist_contents
+            "playlist_contents": self.playlist_contents,
+            "video_details": self.video_details
         }
 
     # def __del__(self):
@@ -449,8 +450,30 @@ class NetworkThread(Thread):
             playlistitems_list_request = self.youtube.playlistItems().list_next(
                 playlistitems_list_request, playlistitems_list_response)
 
-        return list(sorted(results))
+        return results
 
+
+    def video_details(self, request):
+        """
+        Given the ID of a video for a user, fetch the details for that video
+        for editing purposes.
+        """
+        details_request = self.youtube.videos().list(
+            id=request["video_id"],
+            part='snippet'
+            )
+
+        details_response = details_request.execute()
+        for item in details_response['items']:
+            video = item["snippet"]
+            return {
+                'video_id': item['id'],
+                'title': video['title'],
+                'description': video['description'],
+                'tags': video['tags']
+            }
+
+        return None
 
     def handle_request(self, request_obj):
         """

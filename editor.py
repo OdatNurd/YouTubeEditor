@@ -191,6 +191,39 @@ class YoutubeEditorListVideosCommand(YoutubeRequest, sublime_plugin.ApplicationC
 ###----------------------------------------------------------------------------
 
 
+class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.ApplicationCommand):
+    """
+    Prompt for a video and then open an editor window on its details.
+    """
+    def _authorized(self, request, result):
+        self.request("uploads_playlist")
+
+    def _uploads_playlist(self, request, result):
+        self.request("playlist_contents", playlist_id=result)
+
+    def _playlist_contents(self, request, result):
+        window = sublime.active_window()
+        items = [[video['title'], video['link']] for video in result]
+        window.show_quick_panel(items, lambda i: self.select_video(i, items))
+
+    def _video_details(self, request, result):
+        sublime.active_window().run_command('youtube_editor_new_window', {
+            'video_id': result["video_id"],
+            'title': result["title"],
+            'body': result["description"],
+            'tags': result["tags"]
+            })
+
+    def select_video(self, idx, items):
+        if idx >= 0:
+            video = items[idx]
+            video_id = video[1].split('/')[-1]
+            self.request("video_details", video_id=video_id)
+
+
+###----------------------------------------------------------------------------
+
+
 class YoutubeEditorNewWindowCommand(sublime_plugin.WindowCommand):
     """
     Create a new window for creating a YouTube video description into; the
