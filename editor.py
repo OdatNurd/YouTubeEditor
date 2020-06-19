@@ -178,11 +178,14 @@ class YoutubeEditorListVideosCommand(YoutubeRequest, sublime_plugin.ApplicationC
 
     def _playlist_contents(self, request, result):
         window = sublime.active_window()
-        window.show_quick_panel(result, lambda i: self.select_video(result[i]))
+        items = [[video['title'], video['link']] for video in result]
+        window.show_quick_panel(items, lambda i: self.select_video(i, items))
 
-    def select_video(self, video):
-        sublime.set_clipboard(video[1])
-        sublime.status_message('URL Copied: %s' % video[0])
+    def select_video(self, idx, items):
+        if idx >= 0:
+            video = items[idx]
+            sublime.set_clipboard(video[1])
+            sublime.status_message('URL Copied: %s' % video[0])
 
 
 ###----------------------------------------------------------------------------

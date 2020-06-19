@@ -437,9 +437,14 @@ class NetworkThread(Thread):
 
             # Print information about each video.
             for playlist_item in playlistitems_list_response['items']:
-                title = playlist_item['snippet']['title']
-                video_id = playlist_item['snippet']['resourceId']['videoId']
-                results.append([title, 'https://youtu.be/%s' % video_id])
+                details = playlist_item['snippet']
+                video_id = details['resourceId']['videoId']
+                results.append({
+                    'video_id': video_id,
+                    'title':    details['title'],
+                    'description': details['description'],
+                    'link': 'https://youtu.be/%s' % video_id
+                })
 
             playlistitems_list_request = self.youtube.playlistItems().list_next(
                 playlistitems_list_request, playlistitems_list_response)
