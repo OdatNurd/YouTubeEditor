@@ -1,11 +1,13 @@
 import sublime
 
-from threading import Thread, Event, Lock
+from .logging import log
+from .request import Request
+
+from threading import Thread
 import queue
 
 import os
 import json
-import textwrap
 
 # A compatible version of this is available in hashlib in more recent builds of
 # Python, but it takes keyword only arguments. You can swap to that one by
@@ -21,26 +23,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 
 ###----------------------------------------------------------------------------
-
-
-# The configuration information for our application; the values here come from
-# the Google Application Console.
-#
-# This value is populated with the value from the settings at the time that the
-# plugin is loaded, which means that changing the settings requires quitting
-# and restarting Sublime currently.
-#
-# This is a bit of a hack since the code should be reading this config directly
-# and not using this global, but this is a holdover from the PoC where this was
-# hard coded.
-CLIENT_CONFIG = {
-    "installed":{
-        "client_id":"",
-        "auth_uri":"",
-        "token_uri":"",
-        "client_secret":"",
-    }
-}
 
 
 # This OAuth 2.0 access scope allows for read-only access to the authenticated
@@ -60,60 +42,22 @@ _PBKDF_Key = scrypt("password".encode(), _PBKDF_Salt, 1024, 1, 1, 32)
 ###----------------------------------------------------------------------------
 
 
-def plugin_loaded():
-    global CLIENT_CONFIG
+def app_client_config():
+    """
+    Obtain the necessary information to conduct OAuth interactions with the
+    YouTube data API.
+    """
+    if hasattr(app_client_config, "config"):
+        return app_client_config.config
 
-    # TODO: This should actually be done whenever anything needs any of these
-    # values, and we need some sort of hot reload, though currently that would
-    # require breaking and re-establshing authorization.
     settings = sublime.load_settings("YouTubeEditor.sublime-settings")
     installed = {}
     for key in ("client_id", "client_secret", "auth_uri", "token_uri"):
         installed[key] = settings.get(key, "")
 
-    CLIENT_CONFIG["installed"] = installed
+    app_client_config.config = {"installed": installed}
 
-
-###----------------------------------------------------------------------------
-
-
-def log(msg, *args, dialog=False, error=False, panel=False, **kwargs):
-    """
-    Generate a log message to the console, and then also optionally to a dialog
-    or decorated output panel.
-
-    The message will be formatted and dedented before being displayed and will
-    have a prefix that indicates where it's coming from.
-    """
-    msg = textwrap.dedent(msg.format(*args, **kwargs)).strip()
-
-    # sublime.error_message() always displays its content in the console
-    if error:
-        print("YouTubeEditor:")
-        return sublime.error_message(msg)
-
-    for line in msg.splitlines():
-        print("YouTubeEditor: {msg}".format(msg=line))
-
-    if dialog:
-        sublime.message_dialog(msg)
-
-    if panel:
-        window = sublime.active_window()
-        if "output.youtuberizer" not in window.panels():
-            view = window.create_output_panel("youtuberizer")
-            view.set_read_only(True)
-            view.settings().set("gutter", False)
-            view.settings().set("rulers", [])
-            view.settings().set("word_wrap", False)
-
-        view = window.find_output_panel("youtuberizer")
-        view.run_command("append", {
-            "characters": msg + "\n",
-            "force": True,
-            "scroll_to_end": True})
-
-        window.run_command("show_panel", {"panel": "output.youtuberizer"})
+    return app_client_config.config
 
 
 def stored_credentials_path():
@@ -167,13 +111,14 @@ def get_cached_credentials():
     except FileNotFoundError:
         return None
 
+    client_config = app_client_config()
     return google.oauth2.credentials.Credentials(
         cached["token"],
         cached["refresh_token"],
         cached["id_token"],
-        CLIENT_CONFIG["installed"]["token_uri"],
-        CLIENT_CONFIG["installed"]["client_id"],
-        CLIENT_CONFIG["installed"]["client_secret"],
+        client_config["installed"]["token_uri"],
+        client_config["installed"]["client_id"],
+        client_config["installed"]["client_secret"],
         SCOPES
     )
 
@@ -194,7 +139,7 @@ def get_authenticated_service():
     credentials = get_cached_credentials()
     if credentials is None or not credentials.valid:
         # TODO: This can raise exceptions, AccessDeniedError
-        flow = InstalledAppFlow.from_client_config(CLIENT_CONFIG, SCOPES)
+        flow = InstalledAppFlow.from_client_config(app_client_config(), SCOPES)
         credentials = flow.run_local_server(client_type="installed",
             authorization_prompt_message='YouTubeEditor: Launching browser to log in',
             success_message='YouTubeEditor login complete! You can close this window.')
@@ -206,150 +151,6 @@ def get_authenticated_service():
 
 ###----------------------------------------------------------------------------
 
-
-class Request(dict):
-    """
-    Simple wrapper for a request object. This is essentially a hashable
-    dictionary object that doesn't throw exceptions when you attempt to access
-    a key that doesn't exist, and which inherently knows what it's name is.
-    """
-    def __init__(self, name, handler=None, **kwargs):
-        super().__init__(self, **kwargs)
-        self.name = name
-        self.handler = handler or '_' + name
-
-    def __key(self):
-        return tuple((k,self[k]) for k in sorted(self))
-
-    def __hash__(self):
-        return hash(self.__key())
-
-    def __eq__(self, other):
-        return self.__key() == other.__key()
-
-    def __getitem__(self, key):
-        return self.get(key, None)
-
-    def __set_name(self, value):
-        self["_name"] = value
-
-    def __get_name(self):
-        return self.get("_name", None)
-
-    def __set_handler(self, value):
-        self["_handler"] = value
-
-    def __get_handler(self):
-        return self.get("_handler", None)
-
-    name = property(__get_name, __set_name)
-    handler = property(__get_handler, __set_handler)
-
-
-###----------------------------------------------------------------------------
-
-
-class NetworkManager():
-    """
-    This class manages all of our network interactions by using a background
-    thread (or threads) to make requests, handing results back as they are
-    obtained and signalling other events.
-
-    There should be a single global instance of this class created; it connects
-    the network data gathering with the Sublime front end.
-    """
-    def __init__(self):
-        self.thr_event = Event()
-        self.request_queue = queue.Queue()
-        self.net_thread = NetworkThread(self.thr_event, self.request_queue)
-        self.authorized = False
-        self.cache = {}
-
-    def startup(self):
-        """
-        Start up the networking system; this initializes and starts up the
-        network thread.
-
-        This can be called just prior to the first network operation;
-        optionally it can also be invoked from plugin_loaded().
-        """
-        log("Spinning up YouTube thread")
-        self.net_thread.start()
-
-    def shutdown(self):
-        """
-        Shut down the networking system; this shuts down any background threads
-        that may be running. This should be called from plugin_unloaded() to do
-        cleanup before we go away.
-        """
-        if self.net_thread.is_alive():
-            log("Terminating YouTube thread")
-            self.thr_event.set()
-            self.net_thread.join(0.25)
-
-    def has_credentials(self):
-        """
-        Returns an indication of whether or not there are currently stored
-        credentials for a YouTube login; this indicates that the user has
-        already authorized the application to access their account.
-        """
-        return os.path.isfile(stored_credentials_path())
-
-    def is_authorized(self):
-        """
-        Determine if the plugin is currently authorized or not; this
-        is an indication that data requests can be made; prior to this point
-        requests will fail.
-        """
-        return self.authorized
-
-    def callback(self, request, user_callback, success, result):
-        """
-        This callback is what is submitted to the network thread to invoke
-        when a result is delivered. We get the success and the result, as
-        well as the request that was made and the user callback.
-
-        NOTE: The NetworkThread always invokes this in Sublime's main thread,
-        not from within itself; this is the barrier where the requested data
-        shifts between threads.
-        """
-        if success:
-            self.cache[request] = result
-        elif request in self.cache:
-            del self.cache[request]
-
-        # Handle updates of internal state.
-        if request.name == "authorize":
-            self.authorized = success
-        elif request.name == "deauthorize":
-            self.authorized = False
-            self.cache = dict()
-
-        user_callback(request, success, result)
-
-    def request(self, request, callback, refresh=False):
-        """
-        Submit the given request to the network thread; the thread will execute
-        the task and then invoke the callback once complete; the callback gets
-        called with a boolean that indicates the success or failure, and either
-        the error reason (on fail) or the result (on success).
-
-        Internally this class will cache the result of some requests; in order
-        to force a re-request, set refresh to True.
-        """
-        if request in self.cache and not refresh:
-            return callback(request, True, self.cache[request])
-
-        if not self.net_thread.is_alive():
-            self.startup()
-
-        self.request_queue.put({
-            "request": request,
-            "callback": lambda s, r: self.callback(request, callback, s, r)
-        })
-
-
-###----------------------------------------------------------------------------
 
 
 class NetworkThread(Thread):
