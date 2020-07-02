@@ -8,5 +8,5 @@ contexts:
   main:
     - match: ','
       scope: keyword.other.any.tags
-    - match: \w+
+    - match: '[^,]+'
       scope: variable.function.tags

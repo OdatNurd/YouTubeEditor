@@ -69,6 +69,7 @@ class YoutubeEditorNewWindowCommand(sublime_plugin.WindowCommand):
             view.set_scratch(True)
             view.settings().set(info["setting"], True)
             view.settings().set('youtube_view', True)
+
             view.run_command('append', {'characters': info["body"]})
 
 
