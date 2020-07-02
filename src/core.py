@@ -7,8 +7,6 @@ from ..lib import log, Request, NetworkManager, stored_credentials_path
 
 
 # TODO:
-#  - Maximum title length is 100 characters
-#  - Description is max 5000 characters
 #  - Hit the keyword in the first few lines and 2-3 times total
 #  - The first few lines (how much?) are shown above the fold
 #  - Tags is 500 characters long, no more than 30 characters per tag

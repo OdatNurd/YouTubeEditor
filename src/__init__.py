@@ -1,10 +1,11 @@
 from ..editor import reload
 
-reload("src", ["core"])
+reload("src", ["core", "events"])
 reload("src.commands")
 
 from . import core
 from .core import *
+from .events import *
 from .commands import *
 
 __all__ = [
@@ -17,5 +18,10 @@ __all__ = [
     "YoutubeEditorListVideosCommand",
     "YoutubeEditorVideoDetailsCommand",
     "YoutubeEditorNewWindowCommand",
-    "YoutubeEditorNextViewCommand"
+    "YoutubeEditorNextViewCommand",
+
+    # Events
+    "YoutubeTitleEventListener",
+    "YoutubeBodyEventListener",
+    "YoutubeTagsEventListener"
 ]
