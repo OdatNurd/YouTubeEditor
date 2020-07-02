@@ -21,6 +21,9 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google_auth_oauthlib.flow import InstalledAppFlow
 
+# TODO: Fields in request results (for example 'tags') don't seem to be
+#       mandatory, so we should probably be smarter about that.
+
 
 ###----------------------------------------------------------------------------
 
@@ -269,9 +272,9 @@ class NetworkThread(Thread):
             video = item["snippet"]
             return {
                 'video_id': item['id'],
-                'title': video['title'],
-                'description': video['description'],
-                'tags': video['tags']
+                'title': video.get('title', ''),
+                'description': video.get('description', ''),
+                'tags': video.get('tags', [])
             }
 
         return None
