@@ -3,4 +3,6 @@
     "wrap_width": 80,
     "rulers": [80 ],
     "line_numbers": false,
+    "spell_check": true,
+    "spelling_selector": "text.youtube"
 }

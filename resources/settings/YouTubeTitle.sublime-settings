@@ -2,4 +2,6 @@
     "word_wrap": false,
     "rulers": [100, 70],
     "line_numbers": false,
+    "spell_check": true,
+    "spelling_selector": "text.youtube"
 }
