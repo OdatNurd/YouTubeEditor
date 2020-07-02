@@ -9,8 +9,8 @@ from ..core import YoutubeRequest, yte_syntax
 
 # The layout for a new YouTube editor window
 _layout = {
-    'cells': [[0, 0, 1, 1], [0, 1, 1, 2], [0, 2, 1, 3]],
-    'cols': [0.0, 1.0],
+    'cells': [[0, 0, 2, 1], [0, 1, 1, 2], [0, 2, 2, 3], [1, 1, 2, 2]],
+    'cols': [0.0, 0.6, 1.0],
     'rows': [0.0, 0.05, 0.85, 1.0]
 }
 
@@ -49,16 +49,19 @@ class YoutubeEditorNewWindowCommand(sublime_plugin.WindowCommand):
             {
                 'syntax':  'YouTubeTitle',
                 'setting': '_yte_video_title',
+                'name':    'Video Title',
                 'body':    title
             },
             {
                 'syntax':  'YouTubeBody',
                 'setting': '_yte_video_body',
+                'name':    'Video Body',
                 'body':    description
             },
             {
                 'syntax':  'YouTubeTags',
                 'setting': '_yte_video_tags',
+                'name':    'Video Tags',
                 'body':    ','.join(tags)
             }
         ]
@@ -67,6 +70,7 @@ class YoutubeEditorNewWindowCommand(sublime_plugin.WindowCommand):
             new_window.focus_group(group)
             view = new_window.new_file(syntax=yte_syntax(info["syntax"]))
             view.set_scratch(True)
+            view.set_name(info["name"])
             view.settings().set(info["setting"], True)
             view.settings().set('youtube_view', True)
 

@@ -1,6 +1,9 @@
 import sublime
 import sublime_plugin
 
+import base64
+import requests
+
 from ..core import YoutubeRequest, sort_videos
 
 
@@ -34,6 +37,21 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
             'description': result["description"],
             'tags': result["tags"]
             })
+
+        sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), result["video_id"]))
+
+    def load_thumbnail(self, window, video_id):
+        img_uri = 'https://i.ytimg.com/vi/%s/sddefault.jpg' % video_id
+        try:
+            request = requests.get(img_uri, stream=True)
+            data_uri = ("data:" + request.headers['Content-Type'] + ";" +
+                "base64," + base64.b64encode(request.content).decode("utf-8"))
+
+            prev_group = window.active_group()
+            window.new_html_sheet('Video Thumbnail', '<img src="%s" />' % data_uri, group=3)
+            window.focus_group(prev_group)
+        except:
+            pass
 
     def select_video(self, idx, items):
         if idx >= 0:
