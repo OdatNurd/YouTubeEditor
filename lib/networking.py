@@ -2,6 +2,7 @@ import sublime
 
 from .logging import log
 from .request import Request
+from .dotty import dotty
 
 from threading import Thread
 import queue
@@ -174,6 +175,7 @@ class NetworkThread(Thread):
         self.request_map = {
             "authorize": self.authenticate,
             "deauthorize": self.deauthenticate,
+            "channel_details": self.channel_details,
             "uploads_playlist": self.uploads_playlist,
             "playlist_contents": self.playlist_contents,
             "video_details": self.video_details
@@ -204,6 +206,22 @@ class NetworkThread(Thread):
             pass
 
         return "Deauthenticated"
+
+    def channel_details(self, request):
+        """
+        Get details on the channel associated with the currently authenticated
+        user. If the user has more than one channel associated with their
+        login, this will return the information for the first one.
+
+        It's unclear to me how this could occur; my account has two channels
+        but only one of them is returned for this query.
+        """
+        details_response = self.youtube.channels().list(
+            mine=True,
+            part='contentDetails,id,statistics,brandingSettings'
+        ).execute()
+
+        return dotty(details_response["items"][0])
 
     def uploads_playlist(self, request):
         """

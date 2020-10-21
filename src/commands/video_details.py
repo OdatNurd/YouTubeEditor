@@ -20,10 +20,10 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
     requests the user to log in first if not.
     """
     def _authorized(self, request, result):
-        self.request("uploads_playlist")
+        self.request("channel_details")
 
-    def _uploads_playlist(self, request, result):
-        self.request("playlist_contents", playlist_id=result)
+    def _channel_details(self, request, result):
+        self.request("playlist_contents", playlist_id=result['contentDetails.relatedPlaylists.uploads'])
 
     def _playlist_contents(self, request, result):
         window = sublime.active_window()
