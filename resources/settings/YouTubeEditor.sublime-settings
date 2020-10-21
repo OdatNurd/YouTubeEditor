@@ -1,4 +1,12 @@
 {
+    // Set the location to use as the default location when asking the user to
+    // select a Camtasia project file. If this is not set, the default is to
+    // use the user's home directory instead.
+    //
+    // This only controls what is used for the initial prompt; after that, the
+    // last selected folder is used instead (inside of the same session).
+    // "camtasia_folder": "",
+
     // In order to use the package, you *MUST* override the following settings
     // in your user specific package settings. This requires that you set up an
     // application with the Installed OAuth2 flow. The result is google providing

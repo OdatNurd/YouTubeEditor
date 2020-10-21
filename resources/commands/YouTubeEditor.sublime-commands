@@ -5,6 +5,10 @@
 
     { "caption": "YouTubeEditor: New Window", "command": "youtube_editor_new_window" },
 
+    { "caption": "YouTubeEditor: Insert Camtasia Video TOC", "command": "youtube_editor_get_camtasia_contents",
+      "args": {"insert": true}
+    },
+
     {
         "caption": "Preferences: YouTubeEditor Settings",
         "command": "edit_settings",
