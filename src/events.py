@@ -38,6 +38,10 @@ class YoutubeBodyEventListener(sublime_plugin.ViewEventListener):
     def on_modified(self):
         check_length(self.view, 5000, '_yt_body_len', 'region.redish')
 
+        timecodes = self.view.find_by_selector('constant.numeric.timecode')
+        self.view.add_regions('timecodes', timecodes, 'constant.numeric',
+            flags=sublime.DRAW_STIPPLED_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE)
+
 
 ###----------------------------------------------------------------------------
 
