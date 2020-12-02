@@ -20,6 +20,7 @@ __all__ = [
     "YoutubeEditorNewWindowCommand",
     "YoutubeEditorNextViewCommand",
     "YoutubeEditorGetCamtasiaContentsCommand",
+    "YoutubeEditorGetVideoLinkCommand",
 
     # Events
     "YoutubeTitleEventListener",

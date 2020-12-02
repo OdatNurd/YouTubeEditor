@@ -10,6 +10,7 @@ from .video_details import YoutubeEditorVideoDetailsCommand
 from .new_window import YoutubeEditorNewWindowCommand
 from .navigate import YoutubeEditorNextViewCommand
 from .get_camtasia_toc import YoutubeEditorGetCamtasiaContentsCommand
+from .get_video_link import YoutubeEditorGetVideoLinkCommand
 
 __all__ = [
     # Authorize and Deauthorize the plugin for YouTube
@@ -27,5 +28,8 @@ __all__ = [
     "YoutubeEditorNextViewCommand",
 
     # Prompt the user for a Camtasia project file and fetch the TOC from it.
-    "YoutubeEditorGetCamtasiaContentsCommand"
+    "YoutubeEditorGetCamtasiaContentsCommand",
+
+    # Copy a video link to the clipboard, possibly with timecode
+    "YoutubeEditorGetVideoLinkCommand"
 ]
