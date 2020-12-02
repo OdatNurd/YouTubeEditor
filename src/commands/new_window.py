@@ -49,18 +49,21 @@ class YoutubeEditorNewWindowCommand(sublime_plugin.WindowCommand):
             {
                 'syntax':  'YouTubeTitle',
                 'setting': '_yte_video_title',
+                'menu':    'YouTubeTitle.sublime-menu',
                 'name':    'Video Title',
                 'body':    title
             },
             {
                 'syntax':  'YouTubeBody',
                 'setting': '_yte_video_body',
+                'menu':    'YouTubeBody.sublime-menu',
                 'name':    'Video Body',
                 'body':    description
             },
             {
                 'syntax':  'YouTubeTags',
                 'setting': '_yte_video_tags',
+                'menu':    'YouTubeTags.sublime-menu',
                 'name':    'Video Tags',
                 'body':    ','.join(tags)
             }
@@ -72,6 +75,7 @@ class YoutubeEditorNewWindowCommand(sublime_plugin.WindowCommand):
             view.set_scratch(True)
             view.set_name(info["name"])
             view.settings().set(info["setting"], True)
+            view.settings().set("context_menu", info["menu"])
             view.settings().set('youtube_view', True)
 
             view.run_command('append', {'characters': info["body"]})

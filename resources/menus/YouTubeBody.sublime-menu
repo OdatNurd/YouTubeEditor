@@ -1,0 +1,11 @@
+[
+    { "caption": "-", "id": "youtube" },
+    { "caption": "Insert Table of Contents", "command": "youtube_editor_get_camtasia_contents" },
+    { "caption": "-", "id": "links" },
+    { "command": "youtube_editor_get_video_link", "args": {"copy": true, "open_in_browser": false } },
+    { "command": "youtube_editor_get_video_link", "args": {"copy": false, "open_in_browser": true }  },
+    { "caption": "-", "id": "clipboard" },
+    { "command": "copy" },
+    { "caption": "-", "id": "selection" },
+    { "command": "select_all" },
+]
