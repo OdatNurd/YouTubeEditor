@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 
 
-from ..lib import log
+from ..lib import log, setup_log_panel
 
 
 ###----------------------------------------------------------------------------
@@ -14,6 +14,20 @@ def check_length(view, max_length, key, scope):
         view.add_regions(key, [sublime.Region(max_length, length)], scope)
     else:
         view.erase_regions(key)
+
+###----------------------------------------------------------------------------
+
+
+class GlobalYouTubeEventListener(sublime_plugin.EventListener):
+    """
+    Handle any global events that don't need to be handled only in specific
+    views.
+    """
+    def on_new_window(self, window):
+        for existing in sublime.windows():
+            if existing.id() != window.id():
+                return setup_log_panel(window, existing)
+
 
 ###----------------------------------------------------------------------------
 

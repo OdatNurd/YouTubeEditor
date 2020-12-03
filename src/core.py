@@ -3,7 +3,8 @@ import sublime_plugin
 
 import os
 
-from ..lib import log, Request, NetworkManager, stored_credentials_path
+from ..lib import log, setup_log_panel
+from ..lib import Request, NetworkManager, stored_credentials_path
 
 
 # TODO:
@@ -31,6 +32,11 @@ def loaded():
     Initialize our plugin state on load.
     """
     global netManager
+
+    for window in sublime.windows():
+        setup_log_panel(window)
+
+    log("YouTubeEditor loaded")
 
     netManager = NetworkManager()
 

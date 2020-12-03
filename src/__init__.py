@@ -25,5 +25,6 @@ __all__ = [
     # Events
     "YoutubeTitleEventListener",
     "YoutubeBodyEventListener",
-    "YoutubeTagsEventListener"
+    "YoutubeTagsEventListener",
+    "GlobalYouTubeEventListener"
 ]
