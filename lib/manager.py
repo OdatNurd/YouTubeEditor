@@ -34,7 +34,7 @@ class NetworkManager():
         This can be called just prior to the first network operation;
         optionally it can also be invoked from plugin_loaded().
         """
-        log("Spinning up YouTube thread")
+        log("Launching YouTube thread")
         self.net_thread.start()
 
     def shutdown(self):

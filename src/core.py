@@ -157,7 +157,7 @@ class YoutubeRequest():
 
             Request: {req}
             Result:  {err}
-            """, error=True, req=request.name, err=result)
+            """, display=True, req=request.name, err=result)
 
     # Assume that most commands want to only enable themselves when there are
     # credentials; commands that are responsible for obtaining credentials

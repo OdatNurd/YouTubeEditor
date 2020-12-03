@@ -69,7 +69,6 @@ def stored_credentials_path():
     """
     Obtain the cached credentials path, which is stored in the Cache folder of
     the User's configuration information.
-
     """
     if hasattr(stored_credentials_path, "path"):
         return stored_credentials_path.path
@@ -190,7 +189,12 @@ class NetworkThread(Thread):
         Start the authorization flow. If the user has never authorized the app,
         this will launch a browser to ask them to do so and will return a
         result as appropriate. Otherwise it will used cached credentials.
+
+        TODO: This can theoretically block forever; this should do something
+        like spawn a temporary thread so that it could cancel after a timeout
+        or on user request.
         """
+        log("THR: Requesting authorization")
         self.youtube = get_authenticated_service()
         return "Authenticated"
 
@@ -200,6 +204,7 @@ class NetworkThread(Thread):
         current login credentials that are cached (if any) and also discard the
         current service object.
         """
+        log("THR: Removing stored login credentials")
         try:
             os.remove(stored_credentials_path())
             self.youtube = None
@@ -217,12 +222,17 @@ class NetworkThread(Thread):
         It's unclear to me how this could occur; my account has two channels
         but only one of them is returned for this query.
         """
+        log("API: Fetching channel details")
         details_response = self.youtube.channels().list(
             mine=True,
             part='contentDetails,id,statistics,brandingSettings'
         ).execute()
 
-        return dotty(details_response["items"][0])
+        result = dotty(details_response["items"][0])
+
+        log("API: Retreived information for: {0}", result["brandingSettings.channel.title"])
+
+        return result
 
     def uploads_playlist(self, request):
         """
@@ -231,7 +241,10 @@ class NetworkThread(Thread):
         ID of that playlist and returns it.
 
         This can return None if the user has not uploaded any videos.
+
+        TODO: This should use the previously gathered channel details
         """
+        log("API: Fetching uploads playlist")
         channels_response = self.youtube.channels().list(
             mine=True,
             part='contentDetails'
@@ -239,8 +252,10 @@ class NetworkThread(Thread):
 
         # From the API response, extract the playlist ID that identifies the
         # list of videos uploaded to the authenticated user's channel.
-        for channel in channels_response['items']:
-            return channel['contentDetails']['relatedPlaylists']['uploads']
+        if channels_response["items"]:
+            playlist = channels_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+            log("API: Upload playlist: {0}", playlist)
+            return playlist
 
         return None
 
@@ -249,6 +264,7 @@ class NetworkThread(Thread):
         Given the ID of a playlsit for a user, fetch the contents of that
         playlist.
         """
+        log("API: Fetching playlist contents for playlist: {0}", request["playlist_id"])
         playlistitems_list_request = self.youtube.playlistItems().list(
             playlistId=request["playlist_id"],
             part='snippet',
@@ -259,7 +275,7 @@ class NetworkThread(Thread):
         while playlistitems_list_request:
             playlistitems_list_response = playlistitems_list_request.execute()
 
-            # Print information about each video.
+            # Grab information about each video.
             for playlist_item in playlistitems_list_response['items']:
                 details = playlist_item['snippet']
                 video_id = details['resourceId']['videoId']
@@ -273,6 +289,7 @@ class NetworkThread(Thread):
             playlistitems_list_request = self.youtube.playlistItems().list_next(
                 playlistitems_list_request, playlistitems_list_response)
 
+        log("API: Playlist contains {0} items", len(results))
         return results
 
 
@@ -281,6 +298,7 @@ class NetworkThread(Thread):
         Given the ID of a video for a user, fetch the details for that video
         for editing purposes.
         """
+        log("API: Fetching video details for: {0}", request["video_id"])
         details_request = self.youtube.videos().list(
             id=request["video_id"],
             part='snippet'
@@ -289,6 +307,7 @@ class NetworkThread(Thread):
         details_response = details_request.execute()
         for item in details_response['items']:
             video = item["snippet"]
+            log("API: Got information for: {0}", video.get('title', ''))
             return {
                 'video_id': item['id'],
                 'title': video.get('title', ''),
@@ -343,7 +362,7 @@ class NetworkThread(Thread):
             except queue.Empty:
                 pass
 
-        log("Network thread has terminated")
+        log("THR: YouTube thread has terminated")
 
 
 ###----------------------------------------------------------------------------
