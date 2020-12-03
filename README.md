@@ -14,8 +14,12 @@ well. Clone that repository into your `Packages` folder and select `Package
 Control: Install Local Dependency` to install the dependency. Once the
 dependency is in place, you can install the package.
 
-In order to use this package, you need to set yourself up with YouTube API
-access from the google developer console. Once your app is set up, edit the
-YouTubeEditor settings and include the required keys in your custom
+*NOTE* Although this package runs in the Python 3.3 plugin host, a build of
+Sublime Text >= 4082 is required, as the package uses some of the new API's
+available only in those builds.
+
+Additionally, in order to use this package, you need to set yourself up with
+YouTube API access from the google developer console. Once your app is set up,
+edit the YouTubeEditor settings and include the required keys in your custom
 configuration.
 
