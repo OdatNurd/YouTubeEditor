@@ -45,7 +45,8 @@ class YoutubeEditorGetVideoLinkCommand(sublime_plugin.TextCommand):
         return ""
 
     def is_enabled(self, event=None):
-        return self.view.window().settings().get("_yte_youtube_window", False)
+        s = self.view.window().settings()
+        return s.get("_yte_youtube_window", False) and s.get("_yte_video_id") is not None
 
     def want_event(self):
         return True
