@@ -4,6 +4,8 @@ from .logging import log
 from .request import Request
 from .dotty import dotty
 
+from ..src.core import yte_setting
+
 from threading import Thread
 import queue
 
@@ -54,10 +56,9 @@ def app_client_config():
     if hasattr(app_client_config, "config"):
         return app_client_config.config
 
-    settings = sublime.load_settings("YouTubeEditor.sublime-settings")
     installed = {}
     for key in ("client_id", "client_secret", "auth_uri", "token_uri"):
-        installed[key] = settings.get(key, "")
+        installed[key] = yte_setting(key)
 
     app_client_config.config = {"installed": installed}
 

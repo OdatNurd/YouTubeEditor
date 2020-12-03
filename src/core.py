@@ -36,6 +36,13 @@ def loaded():
 
     yte_setting.obj = sublime.load_settings("YouTubeEditor.sublime-settings")
     yte_setting.default = {
+        "camtasia_folder": os.path.expanduser("~"),
+        "auto_show_panel": 2,
+
+        "client_id": "",
+        "client_secret": "",
+        "auth_uri": "",
+        "token_uri": ""
     }
 
 
@@ -58,7 +65,7 @@ def yte_syntax(file):
 
 def yte_setting(key):
     """
-    Get an OverrideAudit setting from a cached settings object.
+    Get a YouTubeEditor setting from a cached settings object.
     """
     default = yte_setting.default.get(key, None)
     return yte_setting.obj.get(key, default)

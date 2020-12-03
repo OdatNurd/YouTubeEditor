@@ -4,7 +4,7 @@ import sublime_plugin
 import datetime
 import os
 
-from ..core import YoutubeRequest, sort_videos
+from ..core import YoutubeRequest, sort_videos, yte_setting
 
 
 ###----------------------------------------------------------------------------
@@ -46,8 +46,7 @@ class YoutubeEditorGetCamtasiaContentsCommand(sublime_plugin.ApplicationCommand)
 
     def run(self, filename=None, insert=False):
         if filename is None:
-            settings = sublime.load_settings("YouTubeEditor.sublime-settings")
-            default_folder = settings.get("camtasia_folder", os.path.expanduser("~"))
+            default_folder = yte_setting("camtasia_folder")
 
             self.last_folder = self.last_folder or default_folder
 

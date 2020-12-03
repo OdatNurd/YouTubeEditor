@@ -1,4 +1,17 @@
 {
+    // Various status messages are sent to the output panel created in all
+    // windows as events occur. Most text generated to the panel is of an
+    // informational nature, but occasionally they are used to indicate an
+    // error.
+    //
+    // This setting controls whether or not the panel should be automatically
+    // displayed when such a situation occurs.
+    //
+    //   true: always show the panel on error
+    //  false: never show the panel automatically
+    // number: show the panel, but hide it after this many seconds
+    "auto_show_panel": 2,
+
     // Set the location to use as the default location when asking the user to
     // select a Camtasia project file. If this is not set, the default is to
     // use the user's home directory instead.
