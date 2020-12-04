@@ -214,21 +214,29 @@ class NetworkThread(Thread):
 
     def channel_details(self, request):
         """
-        Get details on the channel associated with the currently authenticated
-        user. If the user has more than one channel associated with their
-        login, this will return the information for the first one.
+        Obtain details about the channel that is associated with the currently
+        authenticated user.
 
-        It's unclear to me how this could occur; my account has two channels
-        but only one of them is returned for this query.
+        Currently, this always returns the first channel associated with the
+        user, even if there's more than one.
         """
         log("API: Fetching channel details")
-        details_response = self.youtube.channels().list(
+        # Request breakdown is as follows. Note that snippet and
+        # brandingSettings have overlap between them, but each has information
+        # that the other does not.
+        #
+        # id:               the unique channel ID
+        # snippet:          basic channel details (title, thumbnails, etc)
+        # brandingSettings: channel branding (title, description, etc)
+        # contentDetails:   uploaded and liked video playlist ID's
+        # statistics:       channel views, video counts, etc
+        # status            privacy status, upload abilities, etc
+        response = self.youtube.channels().list(
             mine=True,
-            part='contentDetails,id,statistics,brandingSettings'
+            part='id,snippet,brandingSettings,contentDetails,statistics,status'
         ).execute()
 
-        result = dotty(details_response["items"][0])
-
+        result = dotty(response["items"][0])
         log("API: Retreived information for: {0}", result["brandingSettings.channel.title"])
 
         return result
