@@ -52,7 +52,7 @@ class YoutubeEditorGetCamtasiaContentsCommand(sublime_plugin.ApplicationCommand)
             self.last_folder = self.last_folder or default_folder
 
             return sublime.open_dialog(lambda f: self.pick_file(f, insert),
-                [("Camtasia Projects", "*.tscproj")],
+                [("Camtasia Projects", ["tscproj"])],
                 self.last_folder, False, False)
 
         self.last_folder = os.path.dirname(filename)
