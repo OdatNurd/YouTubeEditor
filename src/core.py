@@ -3,9 +3,8 @@ import sublime_plugin
 
 import os
 
-from ..lib import log, setup_log_panel
+from ..lib import log, setup_log_panel, yte_setting
 from ..lib import Request, NetworkManager, stored_credentials_path
-
 
 # TODO:
 #  - Hit the keyword in the first few lines and 2-3 times total
@@ -36,7 +35,7 @@ def loaded():
     for window in sublime.windows():
         setup_log_panel(window)
 
-    log("YouTubeEditor loaded")
+    log("PKG: YouTubeEditor loaded")
 
     netManager = NetworkManager()
 
@@ -61,28 +60,6 @@ def unloaded():
     if netManager is not None:
         netManager.shutdown()
         netManager = None
-
-def yte_syntax(file):
-    """
-    Return the full name of a YouTube Editor syntax based on the short name.
-    """
-    return "Packages/YouTubeEditor/resources/syntax/%s.sublime-syntax" % file
-
-
-def yte_setting(key):
-    """
-    Get a YouTubeEditor setting from a cached settings object.
-    """
-    default = yte_setting.default.get(key, None)
-    return yte_setting.obj.get(key, default)
-
-
-def sort_videos(video_list):
-    """
-    Given a list of video details returned from YouTube, sort them by video
-    title. The sort is not done in place.
-    """
-    return sorted(video_list, key=lambda k: k["title"])
 
 
 def youtube_has_credentials():

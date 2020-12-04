@@ -2,13 +2,7 @@ import sublime
 
 import textwrap
 
-###----------------------------------------------------------------------------
-
-
-# This symbol comes from the core, but it's lazily imported the first time it's
-# actually needed. We can't import it globally because items in the core also
-# import us, and that gets us into a depdencency loop.
-yte_setting = None
+from .utils import yte_setting
 
 
 ###----------------------------------------------------------------------------
@@ -93,10 +87,6 @@ def display_output_panel():
     window = sublime.active_window()
     if window.active_panel() == 'output.youtubeeditor':
         return
-
-    global yte_setting
-    if yte_setting is None:
-        from ..src.core import yte_setting
 
     # True for always, False for Never, number for Always (but autoclose);
     # thus if this is a boolean and it's False, we should leave. Otherwise,

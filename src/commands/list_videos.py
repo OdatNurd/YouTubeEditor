@@ -1,7 +1,8 @@
 import sublime
 import sublime_plugin
 
-from ..core import YoutubeRequest, sort_videos
+from ..core import YoutubeRequest
+from ...lib import sort_videos
 
 
 ###----------------------------------------------------------------------------

@@ -1,7 +1,8 @@
 import sublime
 import sublime_plugin
 
-from ..core import YoutubeRequest, yte_syntax
+from ..core import YoutubeRequest
+from ...lib import yte_syntax
 
 
 ###----------------------------------------------------------------------------

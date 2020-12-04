@@ -4,7 +4,8 @@ import sublime_plugin
 import base64
 import requests
 
-from ..core import YoutubeRequest, sort_videos
+from ..core import YoutubeRequest
+from ...lib import sort_videos
 
 
 ###----------------------------------------------------------------------------

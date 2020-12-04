@@ -34,7 +34,7 @@ class NetworkManager():
         This can be called just prior to the first network operation;
         optionally it can also be invoked from plugin_loaded().
         """
-        log("Launching YouTube thread")
+        log("PKG: Launching YouTube thread")
         self.net_thread.start()
 
     def shutdown(self):
@@ -44,7 +44,7 @@ class NetworkManager():
         cleanup before we go away.
         """
         if self.net_thread.is_alive():
-            log("Terminating YouTube thread")
+            log("PKG: Terminating YouTube thread")
             self.thr_event.set()
             self.net_thread.join(0.25)
 

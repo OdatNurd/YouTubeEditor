@@ -4,7 +4,8 @@ import sublime_plugin
 import datetime
 import os
 
-from ..core import YoutubeRequest, sort_videos, yte_setting
+from ..core import YoutubeRequest
+from ...lib import sort_videos, yte_setting
 
 
 ###----------------------------------------------------------------------------

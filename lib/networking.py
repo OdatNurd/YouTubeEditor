@@ -3,8 +3,7 @@ import sublime
 from .logging import log
 from .request import Request
 from .dotty import dotty
-
-from ..src.core import yte_setting
+from .utils import yte_setting
 
 from threading import Thread
 import queue
