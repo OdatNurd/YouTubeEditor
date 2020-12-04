@@ -3,6 +3,8 @@ import sublime_plugin
 
 import webbrowser
 
+from ...lib import get_video_timecode, get_window_link
+
 
 ## ----------------------------------------------------------------------------
 
@@ -14,8 +16,7 @@ class YoutubeEditorGetVideoLinkCommand(sublime_plugin.TextCommand):
     a timecode attached to it.
     """
     def run(self, edit, copy=True, open_in_browser=False, event=None):
-        video_id = self.view.window().settings().get("_yte_video_id")
-        url = "https://youtu.be/%s%s" % (video_id, self.get_time_query(event))
+        url = get_window_link(self.view, event=event)
         if copy:
             sublime.set_clipboard(url)
             sublime.status_message('URL Copied: %s' % url)
@@ -24,7 +25,7 @@ class YoutubeEditorGetVideoLinkCommand(sublime_plugin.TextCommand):
             webbrowser.open_new_tab(url)
 
     def description(self, copy=True, open_in_browser=False, event=None):
-        if self.get_time_query(event) != "":
+        if get_video_timecode(self.view, event) != None:
             if copy:
                 return "Copy video link at timecode"
 
@@ -34,15 +35,6 @@ class YoutubeEditorGetVideoLinkCommand(sublime_plugin.TextCommand):
             return "Copy video link"
 
         return "View on YouTube"
-
-    def get_time_query(self, event):
-        if event is not None:
-            point = self.view.window_to_text((event["x"], event["y"]))
-            if self.view.match_selector(point, 'constant.numeric.timecode'):
-                timecode = self.view.substr(self.view.extract_scope(point))
-                return "?t=%d" % (int(timecode[:2]) * 60 + int(timecode[3:]))
-
-        return ""
 
     def is_enabled(self, event=None):
         s = self.view.window().settings()
