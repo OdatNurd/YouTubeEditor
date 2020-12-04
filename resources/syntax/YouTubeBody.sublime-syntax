@@ -15,5 +15,5 @@ contexts:
           - match: '#\w+'
             scope: entity.name.tag.youtube
 
-          - match: '\d\d:\d\d'
+          - match: '(?:\d?\d:)?\d?\d:\d\d'
             scope: constant.numeric.timecode.youtube

@@ -35,8 +35,11 @@ def __convert_timecode(timecode):
     """
     if isinstance(timecode, str):
         try:
-            return int(timecode[:2]) * 60 + int(timecode[3:])
-        except:
+            t = timecode.split(":")
+            if len(t) == 2: t.insert(0, "0")
+
+            return (int(t[0]) * 60 * 60) + (int(t[1]) * 60) + int(t[2])
+        except e as Error:
             print("YouTubeEditor:__convert_timecode() got a bad time code")
             return None
 
