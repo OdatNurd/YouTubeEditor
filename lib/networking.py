@@ -337,7 +337,7 @@ class NetworkThread(Thread):
 
         except Exception as err:
             success = False
-            result = str(err)
+            result = dotty(json.loads(err.content.decode('utf-8')))
 
         sublime.set_timeout(lambda: callback(success, result))
         self.requests.task_done()

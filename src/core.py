@@ -129,12 +129,8 @@ class YoutubeRequest():
         handler(request, result)
 
     def _error(self, request, result):
-        log("""
-            An error occured while talking to YouTube
-
-            Request: {req}
-            Result:  {err}
-            """, display=True, req=request.name, err=result)
+        log("Err: in '{0}': {2} (code={1})", request.name,
+            result['error.code'], result['error.message'], display=True)
 
     # Assume that most commands want to only enable themselves when there are
     # credentials; commands that are responsible for obtaining credentials
