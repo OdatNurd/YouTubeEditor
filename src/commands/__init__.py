@@ -1,7 +1,8 @@
 from ...editor import reload
 
-reload("src.commands", ["authorize", "logout", "list_videos", "new_window",
-                        "video_details", "navigate", "get_camtasia_toc"])
+reload("src.commands", ["authorize", "logout", "list_videos", "video_details",
+                        "new_window", "navigate", "get_camtasia_toc",
+                        "copy_video_link", "view_video_link"])
 
 from .authorize import YoutubeEditorAuthorizeCommand
 from .logout import YoutubeEditorLogoutCommand
@@ -10,7 +11,8 @@ from .video_details import YoutubeEditorVideoDetailsCommand
 from .new_window import YoutubeEditorNewWindowCommand
 from .navigate import YoutubeEditorNextViewCommand
 from .get_camtasia_toc import YoutubeEditorGetCamtasiaContentsCommand
-from .get_video_link import YoutubeEditorGetVideoLinkCommand
+from .copy_video_link import YoutubeEditorCopyVideoLinkCommand
+from .view_video_link import YoutubeEditorViewVideoLinkCommand
 
 __all__ = [
     # Authorize and Deauthorize the plugin for YouTube
@@ -31,5 +33,8 @@ __all__ = [
     "YoutubeEditorGetCamtasiaContentsCommand",
 
     # Copy a video link to the clipboard, possibly with timecode
-    "YoutubeEditorGetVideoLinkCommand"
+    "YoutubeEditorCopyVideoLinkCommand",
+
+    # View a video on YouTube, possibly with timecode
+    "YoutubeEditorViewVideoLinkCommand"
 ]

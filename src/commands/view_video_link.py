@@ -9,30 +9,18 @@ from ...lib import get_video_timecode, get_window_link
 ## ----------------------------------------------------------------------------
 
 
-class YoutubeEditorGetVideoLinkCommand(sublime_plugin.TextCommand):
+class YoutubeEditorViewVideoLinkCommand(sublime_plugin.TextCommand):
     """
     This command is active only in a window that is a YouTube editor window,
-    and can copy a link to the current video to the clipboard, possibly with
-    a timecode attached to it.
+    and can open the current video in a browser, possibly at a timecode,
     """
-    def run(self, edit, copy=True, open_in_browser=False, event=None):
+    def run(self, edit,event=None):
         url = get_window_link(self.view, event=event)
-        if copy:
-            sublime.set_clipboard(url)
-            sublime.status_message('URL Copied: %s' % url)
-
-        if open_in_browser:
-            webbrowser.open_new_tab(url)
+        webbrowser.open_new_tab(url)
 
     def description(self, copy=True, open_in_browser=False, event=None):
         if get_video_timecode(self.view, event) != None:
-            if copy:
-                return "Copy video link at timecode"
-
             return "View on YouTube at timecode"
-
-        if copy:
-            return "Copy video link"
 
         return "View on YouTube"
 
