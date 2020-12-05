@@ -254,11 +254,11 @@ class NetworkThread(Thread):
         # have overlap between them, but each has information that the other
         # does not.
         #
-        # id:               the unique item ID (**NOTE** video ID!)
+        # id:               the unique item ID (**NOTE** this is NOT video ID!)
         # snippet:          basic video details (title, description, etc)
         # contentDetails:   video id and publish time
         # status            privacy status
-        request = self.youtube.playlistItems().list(
+        list_request = self.youtube.playlistItems().list(
             playlistId=request["playlist_id"],
             part='id,snippet,contentDetails,status',
             maxResults=50
@@ -268,15 +268,15 @@ class NetworkThread(Thread):
         # through pages until all information is captured; you could also do
         # this piecemeal if needed.
         results = []
-        while request:
-            response = request.execute()
+        while list_request:
+            response = list_request.execute()
 
             # Grab information about each video.
             for playlist_item in response['items']:
                 results.append(dotty(playlist_item))
 
-            request = self.youtube.playlistItems().list_next(
-                request, response)
+            list_request = self.youtube.playlistItems().list_next(
+                list_request, response)
 
         log("API: Playlist contains {0} items", len(results))
         return results
@@ -295,12 +295,11 @@ class NetworkThread(Thread):
         # contentDetails:   content detais (publish time, duration, etc)
         # status:           video status (uploaded, processed, private, etc)
         # statistics:       statistics (views, likes, dislikes, etc)
-        request = self.youtube.videos().list(
+        response = self.youtube.videos().list(
             id=request["video_id"],
             part='snippet,contentDetails,status,statistics'
-            )
+            ).execute()
 
-        response = request.execute()
         for item in response['items']:
             result = dotty(item)
             log("API: Got information for: {0}", result['snippet.title'])
