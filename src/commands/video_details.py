@@ -37,7 +37,7 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
             'video_id': result["id"],
             'title': result["snippet.title"],
             'description': result["snippet.description"],
-            'tags': result["snippet.tags"]
+            'tags': result.get("snippet.tags", [])
             })
 
         sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), result["id"]))
