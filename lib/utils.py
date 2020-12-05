@@ -25,7 +25,7 @@ def sort_videos(video_list):
     Given a list of video details returned from YouTube, sort them by video
     title. The sort is not done in place.
     """
-    return sorted(video_list, key=lambda k: k["title"])
+    return sorted(video_list, key=lambda k: k["snippet.title"])
 
 
 def __convert_timecode(timecode):

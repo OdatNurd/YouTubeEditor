@@ -175,7 +175,6 @@ class NetworkThread(Thread):
             "authorize": self.authenticate,
             "deauthorize": self.deauthenticate,
             "channel_details": self.channel_details,
-            "uploads_playlist": self.uploads_playlist,
             "playlist_contents": self.playlist_contents,
             "video_details": self.video_details
         }
@@ -236,65 +235,48 @@ class NetworkThread(Thread):
             part='id,snippet,brandingSettings,contentDetails,statistics,status'
         ).execute()
 
-        result = dotty(response["items"][0])
-        log("API: Retreived information for: {0}", result["brandingSettings.channel.title"])
+        if response["items"]:
+            result = dotty(response["items"][0])
+            log("API: Retreived information for: {0}", result["brandingSettings.channel.title"])
+        else:
+            result = dotty()
+            log("API: No channel information available")
 
         return result
 
-    def uploads_playlist(self, request):
-        """
-        YouTube stores the list of uploaded videos for a user in a specific
-        playlist designated for that purposes. This call obtains the playlist
-        ID of that playlist and returns it.
-
-        This can return None if the user has not uploaded any videos.
-
-        TODO: This should use the previously gathered channel details
-        """
-        log("API: Fetching uploads playlist")
-        channels_response = self.youtube.channels().list(
-            mine=True,
-            part='contentDetails'
-        ).execute()
-
-        # From the API response, extract the playlist ID that identifies the
-        # list of videos uploaded to the authenticated user's channel.
-        if channels_response["items"]:
-            playlist = channels_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
-            log("API: Upload playlist: {0}", playlist)
-            return playlist
-
-        return None
-
     def playlist_contents(self, request):
         """
-        Given the ID of a playlsit for a user, fetch the contents of that
-        playlist.
+        Obtain information on the contents of a specific playlist, given by
+        ID.
         """
         log("API: Fetching playlist contents for playlist: {0}", request["playlist_id"])
-        playlistitems_list_request = self.youtube.playlistItems().list(
+        # Request breakdown is as follows. Note that snippet and contentDetails
+        # have overlap between them, but each has information that the other
+        # does not.
+        #
+        # id:               the unique item ID (**NOTE** video ID!)
+        # snippet:          basic video details (title, description, etc)
+        # contentDetails:   video id and publish time
+        # status            privacy status
+        request = self.youtube.playlistItems().list(
             playlistId=request["playlist_id"],
-            part='snippet',
-            # maxResults=20
+            part='id,snippet,contentDetails,status',
+            maxResults=50
         )
 
+        # This is an example of a paged request that will keep executing going
+        # through pages until all information is captured; you could also do
+        # this piecemeal if needed.
         results = []
-        while playlistitems_list_request:
-            playlistitems_list_response = playlistitems_list_request.execute()
+        while request:
+            response = request.execute()
 
             # Grab information about each video.
-            for playlist_item in playlistitems_list_response['items']:
-                details = playlist_item['snippet']
-                video_id = details['resourceId']['videoId']
-                results.append({
-                    'video_id': video_id,
-                    'title':    details['title'],
-                    'description': details['description'],
-                    'link': 'https://youtu.be/%s' % video_id
-                })
+            for playlist_item in response['items']:
+                results.append(dotty(playlist_item))
 
-            playlistitems_list_request = self.youtube.playlistItems().list_next(
-                playlistitems_list_request, playlistitems_list_response)
+            request = self.youtube.playlistItems().list_next(
+                request, response)
 
         log("API: Playlist contains {0} items", len(results))
         return results

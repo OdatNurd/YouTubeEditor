@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 
 from ..core import YoutubeRequest
-from ...lib import sort_videos
+from ...lib import sort_videos, make_video_link
 
 
 ###----------------------------------------------------------------------------
@@ -18,14 +18,15 @@ class YoutubeEditorListVideosCommand(YoutubeRequest, sublime_plugin.ApplicationC
     requests the user to log in first if not.
     """
     def _authorized(self, request, result):
-        self.request("uploads_playlist")
+        self.request("channel_details")
 
-    def _uploads_playlist(self, request, result):
-        self.request("playlist_contents", playlist_id=result)
+    def _channel_details(self, request, result):
+        self.request("playlist_contents", playlist_id=result['contentDetails.relatedPlaylists.uploads'])
 
     def _playlist_contents(self, request, result):
         window = sublime.active_window()
-        items = [[video['title'], video['link']] for video in sort_videos(result)]
+        items = [[vid['snippet.title'], make_video_link(vid['contentDetails.videoId'])]
+                 for vid in sort_videos(result)]
         window.show_quick_panel(items, lambda i: self.select_video(i, items))
 
     def select_video(self, idx, items):

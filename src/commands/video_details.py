@@ -5,7 +5,7 @@ import base64
 import requests
 
 from ..core import YoutubeRequest
-from ...lib import sort_videos
+from ...lib import sort_videos, make_video_link
 
 
 ###----------------------------------------------------------------------------
@@ -28,7 +28,8 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
 
     def _playlist_contents(self, request, result):
         window = sublime.active_window()
-        items = [[video['title'], video['link']] for video in sort_videos(result)]
+        items = [[vid['snippet.title'], make_video_link(vid['contentDetails.videoId'])]
+                 for vid in sort_videos(result)]
         window.show_quick_panel(items, lambda i: self.select_video(i, items))
 
     def _video_details(self, request, result):
