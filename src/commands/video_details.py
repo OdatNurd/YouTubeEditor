@@ -34,13 +34,13 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
 
     def _video_details(self, request, result):
         sublime.active_window().run_command('youtube_editor_new_window', {
-            'video_id': result["video_id"],
-            'title': result["title"],
-            'description': result["description"],
-            'tags': result["tags"]
+            'video_id': result["id"],
+            'title': result["snippet.title"],
+            'description': result["snippet.description"],
+            'tags': result["snippet.tags"]
             })
 
-        sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), result["video_id"]))
+        sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), result["id"]))
 
     def load_thumbnail(self, window, video_id):
         img_uri = 'https://i.ytimg.com/vi/%s/sddefault.jpg' % video_id

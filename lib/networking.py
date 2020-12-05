@@ -281,28 +281,30 @@ class NetworkThread(Thread):
         log("API: Playlist contains {0} items", len(results))
         return results
 
-
     def video_details(self, request):
         """
         Given the ID of a video for a user, fetch the details for that video
         for editing purposes.
         """
         log("API: Fetching video details for: {0}", request["video_id"])
-        details_request = self.youtube.videos().list(
+        # Request breakdown is as follows. Note that snippet and contentDetails
+        # have overlap between them, but each has information that the other
+        # does not.
+        #
+        # snippet:          basic video details (title, description, etc)
+        # contentDetails:   content detais (publish time, duration, etc)
+        # status:           video status (uploaded, processed, private, etc)
+        # statistics:       statistics (views, likes, dislikes, etc)
+        request = self.youtube.videos().list(
             id=request["video_id"],
-            part='snippet'
+            part='snippet,contentDetails,status,statistics'
             )
 
-        details_response = details_request.execute()
-        for item in details_response['items']:
-            video = item["snippet"]
-            log("API: Got information for: {0}", video.get('title', ''))
-            return {
-                'video_id': item['id'],
-                'title': video.get('title', ''),
-                'description': video.get('description', ''),
-                'tags': video.get('tags', [])
-            }
+        response = request.execute()
+        for item in response['items']:
+            result = dotty(item)
+            log("API: Got information for: {0}", result['snippet.title'])
+            return result
 
         return None
 
