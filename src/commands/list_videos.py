@@ -21,11 +21,15 @@ class YoutubeEditorListVideosCommand(YoutubeRequest, sublime_plugin.ApplicationC
         self.request("channel_details")
 
     def _channel_details(self, request, result):
-        self.request("playlist_contents", playlist_id=result['contentDetails.relatedPlaylists.uploads'])
+        self.request("playlist_contents",
+                      playlist_id=result['contentDetails.relatedPlaylists.uploads'],
+                      full_details=True)
 
     def _playlist_contents(self, request, result):
+        # Video ID is in contentDetails.videoId for short results or id for
+        # full details (due to it being a different type of request)
         window = sublime.active_window()
-        items = [[vid['snippet.title'], make_video_link(vid['contentDetails.videoId'])]
+        items = [[vid['snippet.title'], make_video_link(vid['id'])]
                  for vid in sort_videos(result)]
         window.show_quick_panel(items, lambda i: self.select_video(i, items))
 

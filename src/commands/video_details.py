@@ -24,14 +24,22 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
         self.request("channel_details")
 
     def _channel_details(self, request, result):
-        self.request("playlist_contents", playlist_id=result['contentDetails.relatedPlaylists.uploads'])
+        self.request("playlist_contents",
+                      playlist_id=result['contentDetails.relatedPlaylists.uploads'],
+                      full_details=True)
 
     def _playlist_contents(self, request, result):
+        # Video ID is in contentDetails.videoId for short results or id for
+        # full details (due to it being a different type of request)
         window = sublime.active_window()
-        items = [[vid['snippet.title'], make_video_link(vid['contentDetails.videoId'])]
+        items = [[vid['snippet.title'], make_video_link(vid['id'])]
                  for vid in sort_videos(result)]
         window.show_quick_panel(items, lambda i: self.select_video(i, items))
 
+    # TODO: Currently, the playlist contents being full_details already
+    # contains the full video details so this request is redundant. However if
+    # we update full_details to not be full details, this might still be
+    # needed.
     def _video_details(self, request, result):
         sublime.active_window().run_command('youtube_editor_new_window', {
             'video_id': result["id"],
