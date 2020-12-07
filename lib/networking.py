@@ -220,6 +220,8 @@ class NetworkThread(Thread):
         user, even if there's more than one.
         """
         log("API: Fetching channel details")
+        part = request["part"] or 'id,snippet,brandingSettings,contentDetails,statistics,status'
+
         # Request breakdown is as follows. Note that snippet and
         # brandingSettings have overlap between them, but each has information
         # that the other does not.
@@ -232,12 +234,17 @@ class NetworkThread(Thread):
         # status            privacy status, upload abilities, etc
         response = self.youtube.channels().list(
             mine=True,
-            part='id,snippet,brandingSettings,contentDetails,statistics,status'
+            part=part
         ).execute()
 
         if response["items"]:
             result = dotty(response["items"][0])
-            log("API: Retreived information for: {0}", result["brandingSettings.channel.title"])
+            if 'brandingSettings' in part:
+                log("API: Retreived information for: {0}", result["brandingSettings.channel.title"])
+            elif 'id' in part:
+                log("API: Retreived information for: {0}", result["id"])
+            else:
+                log("API: Retreived channel information")
         else:
             result = dotty()
             log("API: No channel information available")
@@ -264,9 +271,10 @@ class NetworkThread(Thread):
         # snippet:          basic video details (title, description, etc)
         # contentDetails:   video id and publish time
         # status            privacy status
-        part = 'id,snippet,contentDetails,status'
         if request["full_details"]:
             part = "contentDetails"
+        else:
+            part = request["part"] or 'id,snippet,contentDetails,status'
 
         list_request = self.youtube.playlistItems().list(
             playlistId=request["playlist_id"],
@@ -295,6 +303,7 @@ class NetworkThread(Thread):
         # actually get the full details of the video.
         if request["full_details"]:
             log("API: Fetching video details for playlist contents")
+            part = request["part"] or 'id,snippet,contentDetails,status'
 
             # This request gets angry if you give is a list of more than 50
             # items, and it also gets angry if you try to page it (as above);
@@ -324,6 +333,8 @@ class NetworkThread(Thread):
         for editing purposes.
         """
         log("API: Fetching video details for: {0}", request["video_id"])
+        part = request["part"] or 'snippet,contentDetails,status,statistics'
+
         # Request breakdown is as follows. Note that snippet and contentDetails
         # have overlap between them, but each has information that the other
         # does not.
@@ -334,7 +345,7 @@ class NetworkThread(Thread):
         # statistics:       statistics (views, likes, dislikes, etc)
         response = self.youtube.videos().list(
             id=request["video_id"],
-            part='snippet,contentDetails,status,statistics'
+            part=part
             ).execute()
 
         for item in response['items']:
