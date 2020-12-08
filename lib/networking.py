@@ -72,7 +72,7 @@ def stored_credentials_path():
     if hasattr(stored_credentials_path, "path"):
         return stored_credentials_path.path
 
-    path = os.path.join(sublime.packages_path(), "..", "Cache", "YouTubeEditor.credentials")
+    path = os.path.join(sublime.cache_path(), "YouTubeEditor.credentials")
     stored_credentials_path.path = os.path.normpath(path)
 
     return stored_credentials_path.path
