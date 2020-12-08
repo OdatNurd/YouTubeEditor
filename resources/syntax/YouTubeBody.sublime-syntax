@@ -4,16 +4,30 @@
 scope: text.youtube.body
 name: Video Description
 hidden: true
+variables:
+  timecode: '(?:\d{1,2}:)?\d{1,2}:\d{2}'
+  hyperlink: '(?:\b(https?|ftp|file)://)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]'
+  hashtag: '#\w+'
+
 contexts:
   main:
-    - match: '^.*\n'
-      scope: entity.name.function
-      push:
-          - match: '(?:\b(https?|ftp|file)://)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]'
-            scope: markup.underline.link.youtube
+    - match: ''
+      push: [body, first_line]
 
-          - match: '#\w+'
-            scope: entity.name.tag.youtube
+  first_line:
+    - meta_scope: entity.name.function
+    - match: '{{timecode}}'
+      scope: constant.numeric.timecode.youtube
 
-          - match: '(?:\d?\d:)?\d?\d:\d\d'
-            scope: constant.numeric.timecode.youtube
+    - match: '\n'
+      pop: true
+
+  body:
+    - match: '{{hyperlink}}'
+      scope: markup.underline.link.youtube
+
+    - match: '{{hashtag}}'
+      scope: entity.name.tag.youtube
+
+    - match: '{{timecode}}'
+      scope: constant.numeric.timecode.youtube
