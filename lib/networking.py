@@ -366,7 +366,7 @@ class NetworkThread(Thread):
         success = True
         result = None
 
-        with BusySpinner(request.name):
+        with BusySpinner(request.reason):
             try:
                 handler = self.request_map.get(request.name, None)
                 if handler is None:

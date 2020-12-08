@@ -5,11 +5,16 @@ class Request(dict):
     """
     Simple wrapper for a request object. This is essentially a hashable
     dictionary object that doesn't throw exceptions when you attempt to access
-    a key that doesn't exist, and which inherently knows what it's name is.
+    a key that doesn't exist, and which inherently knows what it's name is
+    and for what reason it was created.
+
+    handler is a special field the caller can use to track how the result
+    should be handled; any other arguments are regular dict type values.
     """
-    def __init__(self, name, handler=None, **kwargs):
+    def __init__(self, name, handler=None, reason=None, **kwargs):
         super().__init__(self, **kwargs)
         self.name = name
+        self.reason = reason or name
         self.handler = handler or '_' + name
 
     def __key(self):
@@ -29,6 +34,9 @@ class Request(dict):
 
     def __get_name(self):
         return self.get("_name", None)
+
+    def __get_reason(self):
+        return self.reason
 
     def __set_handler(self, value):
         self["_handler"] = value

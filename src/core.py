@@ -81,13 +81,13 @@ def youtube_is_authorized():
     return netManager.is_authorized()
 
 
-def youtube_request(request, handler, callback, **kwargs):
+def youtube_request(request, handler, reason, callback, **kwargs):
     """
     Dispatch a request to collect data from YouTube, invoking the given
     callback when the request completes. The request will store the given
     handler and all remaining arguments as arguments to the request dispatched.
     """
-    netManager.request(Request(request, handler, **kwargs), callback)
+    netManager.request(Request(request, handler, reason, **kwargs), callback)
 
 
 ###----------------------------------------------------------------------------
@@ -107,7 +107,7 @@ class YoutubeRequest():
 
     def run(self, **kwargs):
         if not youtube_is_authorized():
-            self.request("authorize", "_internal_auth")
+            self.request("authorize", "_internal_auth", "Authorizing")
         else:
             self._authorized(self.auth_req, self.auth_resp)
 
@@ -116,8 +116,8 @@ class YoutubeRequest():
         self.auth_resp = result
         self._authorized(self.auth_req, self.auth_resp)
 
-    def request(self, request, handler=None, **kwargs):
-        youtube_request(request, handler, self.result, **kwargs)
+    def request(self, request, handler=None, reason=None, **kwargs):
+        youtube_request(request, handler, reason, self.result, **kwargs)
 
     def result(self, request, success, result):
         attr = request.handler if success else "_error"
