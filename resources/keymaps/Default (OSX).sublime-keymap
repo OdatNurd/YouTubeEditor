@@ -14,4 +14,10 @@
             { "key": "setting.youtube_view" },
         ]
     },
+    {
+        "keys": ["super+w"],
+        "command": "noop", "context": [
+            { "key": "setting.youtube_view" },
+        ]
+    },
 ]
