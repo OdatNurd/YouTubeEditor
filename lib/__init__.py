@@ -4,6 +4,7 @@ reload("lib", ["logging", "utils", "request", "networking", "manager", "dotty"])
 
 from .utils import yte_syntax, yte_setting, sort_videos
 from .utils import get_video_timecode, make_video_link, get_window_link
+from .utils import BusySpinner
 from .logging import log, setup_log_panel
 from .request import Request
 from .manager import NetworkManager
@@ -23,5 +24,6 @@ __all__ = [
     "NetworkManager",
     "stored_credentials_path",
     "dotty",
-    "Dotty"
+    "Dotty",
+    "BusySpinner"
 ]

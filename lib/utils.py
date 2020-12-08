@@ -1,6 +1,8 @@
 import sublime
 import sublime_plugin
 
+from uuid import uuid4
+
 
 ###----------------------------------------------------------------------------
 
@@ -102,6 +104,71 @@ def get_window_link(view, window=None, event=None):
         video_id = window.settings().get("_yte_video_id")
 
     return make_video_link(video_id, timecode)
+
+
+## ----------------------------------------------------------------------------
+
+
+class BusySpinner():
+    """
+    A simple busy spinner in the status bar of a window. It follows the active
+    view in the provided window, so you can move around and still track status.
+
+    The spinner can be started and stopped explicitly or used as a context
+    manager.
+    """
+    width = 5
+
+    def __init__(self, prefix, window=None):
+        self.window = window or sublime.active_window()
+        self.prefix = prefix
+        self.key = "__%s" % uuid4()
+        self.tick_view = None
+        self.running = False
+
+    def __enter__(self):
+        self.start()
+
+    def __exit__(self, type, value, traceback):
+        self.stop()
+
+    def start(self):
+        if self.running:
+            raise ValueError("Cannot start spinner; already started")
+
+        self.running = True
+        sublime.set_timeout(lambda: self.update(0), 100)
+
+    def stop(self):
+        self.running = False
+
+    def update(self, tick):
+        current_view = self.window.active_view()
+
+        if self.tick_view is not None and current_view != self.tick_view:
+            self.tick_view.erase_status(self.key)
+            self.tick_view = None
+
+        if not self.running:
+            current_view.erase_status(self.key)
+            return
+
+        # We need twice as many ticks as the width due to oscillation
+        tick = tick % (2 * self.width)
+
+        # Space to the left and right; once we hit half the width, go back the
+        # other way.
+        left = min(tick, (2 * self.width - tick))
+        right = self.width - left
+
+        # print(tick, left, right)
+        text = "{} [{}={}]".format(self.prefix, " " * left, " " * right)
+
+        current_view.set_status(self.key, text)
+        if self.tick_view is None:
+            self.tick_view = current_view
+
+        sublime.set_timeout(lambda: self.update(tick + 1), 100)
 
 
 ## ----------------------------------------------------------------------------
