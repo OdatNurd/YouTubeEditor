@@ -3,7 +3,7 @@ import sublime
 from .logging import log
 from .request import Request
 from .dotty import dotty
-from .utils import yte_setting
+from .utils import yte_setting, BusySpinner
 
 from threading import Thread
 import queue
@@ -366,17 +366,18 @@ class NetworkThread(Thread):
         success = True
         result = None
 
-        try:
-            handler = self.request_map.get(request.name, None)
-            if handler is None:
-                raise ValueError("Unknown request '%s'" % request.name)
+        with BusySpinner(request.name):
+            try:
+                handler = self.request_map.get(request.name, None)
+                if handler is None:
+                    raise ValueError("Unknown request '%s'" % request.name)
 
-            success = True
-            result = handler(request)
+                success = True
+                result = handler(request)
 
-        except Exception as err:
-            success = False
-            result = dotty(json.loads(err.content.decode('utf-8')))
+            except Exception as err:
+                success = False
+                result = dotty(json.loads(err.content.decode('utf-8')))
 
         sublime.set_timeout(lambda: callback(success, result))
         self.requests.task_done()
