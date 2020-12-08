@@ -22,7 +22,7 @@ class YoutubeEditorLogoutCommand(YoutubeRequest, sublime_plugin.ApplicationComma
 
             return
 
-        self.request("deauthorize")
+        self.request("deauthorize", reason="Logging out")
 
     def _deauthorize(self, request, result):
         log("""

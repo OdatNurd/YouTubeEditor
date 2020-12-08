@@ -19,7 +19,7 @@ class YoutubeEditorAuthorizeCommand(YoutubeRequest, sublime_plugin.ApplicationCo
     is determined by way of having already cached credentials.
     """
     def run(self):
-        self.request("authorize")
+        self.request("authorize", reason="Logging In")
 
     def _authorize(self, request, result):
         log("""

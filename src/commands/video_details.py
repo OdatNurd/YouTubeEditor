@@ -21,10 +21,11 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
     requests the user to log in first if not.
     """
     def _authorized(self, request, result):
-        self.request("channel_details")
+        self.request("channel_details", reason="Get Channel Info")
 
     def _channel_details(self, request, result):
         self.request("playlist_contents",
+                      reason="Get Uploaded Videos",
                       playlist_id=result['contentDetails.relatedPlaylists.uploads'],
                       full_details=True)
 
@@ -67,7 +68,8 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
         if idx >= 0:
             video = items[idx]
             video_id = video[1].split('/')[-1]
-            self.request("video_details", video_id=video_id)
+            self.request("video_details", video_id=video_id,
+                         reason="Get Video Details")
 
 
 ###----------------------------------------------------------------------------
