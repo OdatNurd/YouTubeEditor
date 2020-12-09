@@ -22,14 +22,6 @@ def yte_setting(key):
     return yte_setting.obj.get(key, default)
 
 
-def sort_videos(video_list):
-    """
-    Given a list of video details returned from YouTube, sort them by video
-    title. The sort is not done in place.
-    """
-    return sorted(video_list, key=lambda k: k["snippet.title"])
-
-
 def __convert_timecode(timecode):
     """
     Takes a timecode value that's either a string or a number and returns it
@@ -104,6 +96,19 @@ def get_window_link(view, window=None, event=None):
         video_id = window.settings().get("_yte_video_id")
 
     return make_video_link(video_id, timecode)
+
+
+def select_video(videos, callback):
+    """
+    Given a list of video information, prompt the user with a quick panel to
+    choose an item. The callback will be invoked with a single parameter; None
+    if the user cancelled the selection, or the video the user selected.
+    """
+    videos = sorted(videos, key=lambda k: k["snippet.title"])
+    items = [[v['snippet.title'], make_video_link(v['id'])] for v in videos]
+
+    sublime.active_window().show_quick_panel(items, lambda i: callback(None if i == -1 else videos[i]))
+
 
 
 ## ----------------------------------------------------------------------------

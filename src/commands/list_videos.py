@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 
 from ..core import YoutubeRequest
-from ...lib import sort_videos, make_video_link
+from ...lib import make_video_link, select_video
 
 
 ###----------------------------------------------------------------------------
@@ -29,16 +29,13 @@ class YoutubeEditorListVideosCommand(YoutubeRequest, sublime_plugin.ApplicationC
     def _playlist_contents(self, request, result):
         # Video ID is in contentDetails.videoId for short results or id for
         # full details (due to it being a different type of request)
-        window = sublime.active_window()
-        items = [[vid['snippet.title'], make_video_link(vid['id'])]
-                 for vid in sort_videos(result)]
-        window.show_quick_panel(items, lambda i: self.select_video(i, items))
+        select_video(result, lambda vid: self.select_video(vid))
 
-    def select_video(self, idx, items):
-        if idx >= 0:
-            video = items[idx]
-            sublime.set_clipboard(video[1])
-            sublime.status_message('URL Copied: %s' % video[0])
+    def select_video(self, video):
+        if video:
+            link = make_video_link(video['id'])
+            sublime.set_clipboard(link)
+            sublime.status_message('URL Copied: %s' % link)
 
 
 ###----------------------------------------------------------------------------

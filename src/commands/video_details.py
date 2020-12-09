@@ -5,7 +5,7 @@ import base64
 import requests
 
 from ..core import YoutubeRequest
-from ...lib import sort_videos, make_video_link
+from ...lib import select_video
 
 
 ###----------------------------------------------------------------------------
@@ -32,10 +32,7 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
     def _playlist_contents(self, request, result):
         # Video ID is in contentDetails.videoId for short results or id for
         # full details (due to it being a different type of request)
-        window = sublime.active_window()
-        items = [[vid['snippet.title'], make_video_link(vid['id'])]
-                 for vid in sort_videos(result)]
-        window.show_quick_panel(items, lambda i: self.select_video(i, items))
+        select_video(result, lambda vid: self.select_video(vid))
 
     # TODO: Currently, the playlist contents being full_details already
     # contains the full video details so this request is redundant. However if
@@ -64,11 +61,9 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
         except:
             pass
 
-    def select_video(self, idx, items):
-        if idx >= 0:
-            video = items[idx]
-            video_id = video[1].split('/')[-1]
-            self.request("video_details", video_id=video_id,
+    def select_video(self, video):
+        if video:
+            self.request("video_details", video_id=video['id'],
                          reason="Get Video Details")
 
 

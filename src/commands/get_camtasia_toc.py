@@ -5,7 +5,7 @@ import datetime
 import os
 
 from ..core import YoutubeRequest
-from ...lib import sort_videos, yte_setting
+from ...lib import yte_setting
 
 
 ###----------------------------------------------------------------------------
