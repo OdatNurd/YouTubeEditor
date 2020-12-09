@@ -263,6 +263,7 @@ class NetworkThread(Thread):
         always relevant.
         """
         log("API: Fetching playlist contents for playlist: {0}", request["playlist_id"])
+
         # Request breakdown is as follows. Note that snippet and contentDetails
         # have overlap between them, but each has information that the other
         # does not.
@@ -319,7 +320,7 @@ class NetworkThread(Thread):
             for sublist in id_list:
                 response = self.youtube.videos().list(
                     id=sublist,
-                    part='snippet,contentDetails,status,statistics'
+                    part=part
                     ).execute()
 
                 for video in response["items"]:
