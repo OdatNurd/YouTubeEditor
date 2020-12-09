@@ -27,12 +27,14 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
         self.request("playlist_contents",
                       reason="Get Uploaded Videos",
                       playlist_id=result['contentDetails.relatedPlaylists.uploads'],
+                      part="id,snippet,status,statistics",
                       full_details=True)
 
     def _playlist_contents(self, request, result):
         # Video ID is in contentDetails.videoId for short results or id for
         # full details (due to it being a different type of request)
-        select_video(result, lambda vid: self.select_video(vid))
+        select_video(result, lambda vid: self.select_video(vid),
+                     "View Video Details")
 
     # TODO: Currently, the playlist contents being full_details already
     # contains the full video details so this request is redundant. However if

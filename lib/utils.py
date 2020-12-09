@@ -1,8 +1,26 @@
 import sublime
 import sublime_plugin
 
+from sublime import QuickPanelItem
 from uuid import uuid4
 
+
+###----------------------------------------------------------------------------
+
+
+# These specify the kinds to be used to classify videos in the quick panel when
+# choosing; they're chosen based on the colors they have in the Adaptive
+# color scheme, for lack of any better criteria.
+KIND_PUBLIC =   (sublime.KIND_ID_SNIPPET,    " ", "Public Video")
+KIND_UNLISTED = (sublime.KIND_ID_NAVIGATION, "U", "Unlisted Video")
+KIND_PRIVATE =  (sublime.KIND_ID_FUNCTION,   "P", "Private Video")
+
+# Map YouTube video privacy values to one of our kind values.
+_kind_map = {
+     "private": KIND_PRIVATE,
+     "public": KIND_PUBLIC,
+     "unlisted": KIND_UNLISTED
+}
 
 ###----------------------------------------------------------------------------
 
@@ -98,16 +116,26 @@ def get_window_link(view, window=None, event=None):
     return make_video_link(video_id, timecode)
 
 
-def select_video(videos, callback):
+def select_video(videos, callback, placeholder=None):
     """
     Given a list of video information, prompt the user with a quick panel to
     choose an item. The callback will be invoked with a single parameter; None
     if the user cancelled the selection, or the video the user selected.
     """
     videos = sorted(videos, key=lambda k: k["snippet.title"])
-    items = [[v['snippet.title'], make_video_link(v['id'])] for v in videos]
+    items = [QuickPanelItem(
+               v['snippet.title'],
+               "",
+               "{0} views ✔:{1} ✘:{2}".format(
+                    v['statistics.viewCount'],
+                    v['statistics.likeCount'],
+                    v['statistics.dislikeCount']),
+               _kind_map.get(v['status.privacyStatus'], KIND_PUBLIC)
+             ) for v in videos]
 
-    sublime.active_window().show_quick_panel(items, lambda i: callback(None if i == -1 else videos[i]))
+    sublime.active_window().show_quick_panel(items,
+                            lambda i: callback(None if i == -1 else videos[i]),
+                            placeholder=placeholder)
 
 
 
