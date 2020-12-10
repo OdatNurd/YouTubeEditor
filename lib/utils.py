@@ -124,7 +124,7 @@ def select_video(videos, callback, placeholder=None):
     choose an item. The callback will be invoked with a single parameter; None
     if the user cancelled the selection, or the video the user selected.
     """
-    videos = sorted(videos, key=lambda k: k["snippet.title"])
+    videos = sorted(videos, key=lambda k: int(k["statistics.viewCount"]), reverse=True)
     items = [QuickPanelItem(
                v['snippet.title'],
                "",
