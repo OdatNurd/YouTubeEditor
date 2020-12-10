@@ -13,7 +13,12 @@ from ..lib import Request, NetworkManager, stored_credentials_path
 #  - Tags with spaces may count as having a length + 2 because internally
 #    they're wrapped in quotes and that counts against the length
 #  - Tags should include brand related and channel tags for more relvance
-#
+#  - Chapters: first must be at 0:00; there has to be at least 3 in ascending
+#    order, and the minimum length of a chapter is 10 seconds. There is no
+#    official doc on what the text should look like, but observably it seems to
+#    ignore leading punctuatuion, as in "00:00 - Introduction" the " - " is
+#    skipped (though starting it with a literal " gets it added, so there's
+#    that)
 
 
 ###----------------------------------------------------------------------------
