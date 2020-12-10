@@ -1,13 +1,14 @@
 from ...editor import reload
 
-reload("src.commands", ["authorize", "logout", "list_videos", "video_details",
-                        "new_window", "navigate", "get_camtasia_toc",
-                        "copy_video_link", "view_video_link"])
+reload("src.commands", ["authorize", "logout", "list_videos",
+                        "edit_video_details", "new_window", "navigate",
+                        "get_camtasia_toc", "copy_video_link",
+                        "view_video_link"])
 
 from .authorize import YoutubeEditorAuthorizeCommand
 from .logout import YoutubeEditorLogoutCommand
 from .list_videos import YoutubeEditorListVideosCommand
-from .video_details import YoutubeEditorVideoDetailsCommand
+from .edit_video_details import YoutubeEditorEditVideoDetailsCommand
 from .new_window import YoutubeEditorNewWindowCommand
 from .navigate import YoutubeEditorNextViewCommand
 from .get_camtasia_toc import YoutubeEditorGetCamtasiaContentsCommand
@@ -21,7 +22,7 @@ __all__ = [
 
     # Get the list of videos and other video details
     "YoutubeEditorListVideosCommand",
-    "YoutubeEditorVideoDetailsCommand",
+    "YoutubeEditorEditVideoDetailsCommand",
 
     # Open a new window with video details
     "YoutubeEditorNewWindowCommand",

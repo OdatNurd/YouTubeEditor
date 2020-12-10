@@ -15,7 +15,7 @@ __all__ = [
     "YoutubeEditorAuthorizeCommand",
     "YoutubeEditorLogoutCommand",
     "YoutubeEditorListVideosCommand",
-    "YoutubeEditorVideoDetailsCommand",
+    "YoutubeEditorEditVideoDetailsCommand",
     "YoutubeEditorNewWindowCommand",
     "YoutubeEditorNextViewCommand",
     "YoutubeEditorGetCamtasiaContentsCommand",

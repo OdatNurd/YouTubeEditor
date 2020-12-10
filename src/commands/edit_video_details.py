@@ -11,11 +11,12 @@ from ...lib import select_video
 ###----------------------------------------------------------------------------
 
 
-class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.ApplicationCommand):
+class YoutubeEditorEditVideoDetailsCommand(YoutubeRequest, sublime_plugin.ApplicationCommand):
     """
     Generate a list of all videos for the user's YouTube channel and display
     them in a quick panel. Choosing a video from the list will open a new
-    editor window displaying the details for that video.
+    editor window displaying the details for that video for viewing and future
+    editing.
 
     This command uses previously cached credentials if there are any, and
     requests the user to log in first if not.
@@ -31,24 +32,19 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
                       full_details=True)
 
     def _playlist_contents(self, request, result):
-        # Video ID is in contentDetails.videoId for short results or id for
-        # full details (due to it being a different type of request)
-        select_video(result, lambda vid: self.select_video(vid),
-                     "View Video Details")
+        select_video(result, lambda video: self.select_video(video),
+                     "Edit Video Details")
 
-    # TODO: Currently, the playlist contents being full_details already
-    # contains the full video details so this request is redundant. However if
-    # we update full_details to not be full details, this might still be
-    # needed.
-    def _video_details(self, request, result):
-        sublime.active_window().run_command('youtube_editor_new_window', {
-            'video_id': result["id"],
-            'title': result["snippet.title"],
-            'description': result["snippet.description"],
-            'tags': result.get("snippet.tags", [])
-            })
+    def select_video(self, video):
+        if video:
+            sublime.active_window().run_command('youtube_editor_new_window', {
+                'video_id': video["id"],
+                'title': video["snippet.title"],
+                'description': video["snippet.description"],
+                'tags': video.get("snippet.tags", [])
+                })
 
-        sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), result["id"]))
+            sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), video["id"]))
 
     def load_thumbnail(self, window, video_id):
         img_uri = 'https://i.ytimg.com/vi/%s/sddefault.jpg' % video_id
@@ -62,11 +58,6 @@ class YoutubeEditorVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applicatio
             window.focus_group(prev_group)
         except:
             pass
-
-    def select_video(self, video):
-        if video:
-            self.request("video_details", video_id=video['id'],
-                         reason="Get Video Details")
 
 
 ###----------------------------------------------------------------------------
