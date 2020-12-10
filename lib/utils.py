@@ -72,7 +72,9 @@ def make_video_link(video_id, timecode=None):
 
     query = ""
     if timecode is not None:
-        query = "?t=%d" % __convert_timecode(timecode)
+        timecode = __convert_timecode(timecode)
+        if timecode:
+            query = "?t=%d" % timecode
 
     return "https://youtu.be/%s%s" % (video_id, query)
 
