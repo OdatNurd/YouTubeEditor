@@ -1,13 +1,13 @@
 from ...editor import reload
 
-reload("src.commands", ["authorize", "logout", "list_videos",
+reload("src.commands", ["authorize", "logout", "get_video_link",
                         "edit_video_details", "new_window", "navigate",
                         "get_camtasia_toc", "copy_video_link",
                         "view_video_link"])
 
 from .authorize import YoutubeEditorAuthorizeCommand
 from .logout import YoutubeEditorLogoutCommand
-from .list_videos import YoutubeEditorListVideosCommand
+from .get_video_link import YoutubeEditorGetVideoLinkCommand
 from .edit_video_details import YoutubeEditorEditVideoDetailsCommand
 from .new_window import YoutubeEditorNewWindowCommand
 from .navigate import YoutubeEditorNextViewCommand
@@ -21,7 +21,7 @@ __all__ = [
     "YoutubeEditorLogoutCommand",
 
     # Get the list of videos and other video details
-    "YoutubeEditorListVideosCommand",
+    "YoutubeEditorGetVideoLinkCommand",
     "YoutubeEditorEditVideoDetailsCommand",
 
     # Open a new window with video details

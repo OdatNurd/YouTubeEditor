@@ -8,7 +8,7 @@ from ...lib import make_video_link, select_video
 ###----------------------------------------------------------------------------
 
 
-class YoutubeEditorListVideosCommand(YoutubeRequest, sublime_plugin.ApplicationCommand):
+class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.ApplicationCommand):
     """
     Generate a list of all videos for the user's YouTube channel and display
     them in a quick panel. Choosing a video from the list will copy the URL
