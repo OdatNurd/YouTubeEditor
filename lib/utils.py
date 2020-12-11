@@ -4,6 +4,8 @@ import sublime_plugin
 from sublime import QuickPanelItem
 from uuid import uuid4
 
+import re
+
 
 ###----------------------------------------------------------------------------
 
@@ -14,6 +16,11 @@ from uuid import uuid4
 KIND_PUBLIC =   (sublime.KIND_ID_SNIPPET,    " ", "Public Video")
 KIND_UNLISTED = (sublime.KIND_ID_NAVIGATION, "U", "Unlisted Video")
 KIND_PRIVATE =  (sublime.KIND_ID_FUNCTION,   "P", "Private Video")
+
+# This specifies the kinds to be used when asking the user to select a timecode
+# as we're choosing a video to copy the link for. The base kind is chosen based
+# on its color in Adaptive for lack of any better criteria.
+KIND_TOC = (sublime.KIND_ID_SNIPPET, "✎", "Table of Contents entry")
 
 # When browsing in the quick panel, this KIND is used to signify the special
 # item that indicates that we want to go back up a level in the hierarchy.
@@ -29,6 +36,12 @@ _kind_map = {
      "public": KIND_PUBLIC,
      "unlisted": KIND_UNLISTED
 }
+
+# A Regex that matches a TOC entry in a video description. This is defined as
+# a line of text that starts with a timecode. Everything on the line after this
+# is the chapter title in the table of contents.
+_toc_regex = re.compile(r'(?m)^\s*((?:\d{1,2}:)?\d{1,2}:\d{2})\s+(.*$)')
+
 
 ###----------------------------------------------------------------------------
 
@@ -124,6 +137,41 @@ def get_window_link(view, window=None, event=None):
         video_id = window.settings().get("_yte_video_id")
 
     return make_video_link(video_id, timecode)
+
+
+def select_timecode(video, callback, show_back=False, placeholder=None):
+    """
+    Given a video, grab the table of contents from the video description and
+    prompt the user to choose one of the entries. The callback will be called
+    with the time code value and the TOC text if the entry chosen. If the
+    user cancels, both values are None
+
+    If there is no table of contents in the video, the callback is invoked
+    immediately with a time code of "00:00" and a text of None.
+
+    If show_back is True, an extra entry to allow the user to go back a panel is
+    displayed. If this item is chosen, the toc entry is the special sentinel
+    value "_back".
+    """
+    toc = _toc_regex.findall(video['snippet.description'])
+    if not toc:
+        return callback("00:00", None)
+
+    placeholder = placeholder or "Timecode in '%s'" % video['snippet.title']
+    toc = [QuickPanelItem(i[1], "", i[0], KIND_TOC) for i in toc]
+
+    if show_back:
+        toc.insert(0, QuickPanelItem("..", "", "Go back", KIND_BACK))
+
+    def pick(i):
+        if i == -1:
+            return callback(None, None)
+        elif show_back and i == 0:
+            return callback("_back", "")
+
+        callback(toc[i].annotation, toc[i].trigger)
+
+    sublime.active_window().show_quick_panel(toc, pick, placeholder=placeholder)
 
 
 def select_tag(videos, callback, tag_list=None, placeholder=None):
