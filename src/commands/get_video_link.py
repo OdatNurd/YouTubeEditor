@@ -4,23 +4,7 @@ import sublime_plugin
 from sublime import QuickPanelItem
 
 from ..core import YoutubeRequest
-from ...lib import make_video_link, select_video
-
-import re
-
-
-###----------------------------------------------------------------------------
-
-
-# A Regex that matches a TOC entry in a video description. This is defined as
-# a line of text that starts with a timecode. Everything on the line after this
-# is the chapter title in the table of contents.
-_toc_regex = re.compile(r'(?m)^\s*((?:\d{1,2}:)?\d{1,2}:\d{2})\s+(.*$)')
-
-# This specifies the kinds to be used when asking the user to select a timecode
-# as we're choosing a video to copy the link for. The base kind is chosen based
-# on its color in Adaptive for lack of any better criteria.
-KIND_TOC = (sublime.KIND_ID_SNIPPET, "✎", "Table of Contents entry")
+from ...lib import make_video_link, select_video, select_tag, select_timecode
 
 
 ###----------------------------------------------------------------------------
@@ -46,33 +30,36 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
                       full_details=True)
 
     def _playlist_contents(self, request, result):
-        # Video ID is in contentDetails.videoId for short results or id for
-        # full details (due to it being a different type of request)
-        select_video(result, lambda vid: self.select_video(vid),
-                     "Copy Video Link")
+        select_tag(result, self.pick_tag, placeholder="Copy video link from tag")
 
-    def select_video(self, video):
+    def pick_tag(self, tag, tag_list):
+        if tag is not None:
+            videos = tag_list[tag]
+
+            placeholder = "Copy video link from tag '%s'" % tag
+            # Video ID is in contentDetails.videoId for short results or id for
+            # full details (due to it being a different type of request)
+            select_video(videos, lambda vid: self.select_video(vid, tag, tag_list),
+                         show_back=True, placeholder=placeholder)
+
+    def select_video(self, video, tag, tag_list):
         if video is None:
             return
 
-        toc = _toc_regex.findall(video['snippet.description'])
-        if not toc:
-            return self.link_at_timecode(video)
+        if video['id'] == "_back":
+            return select_tag(None, self.pick_tag, tag_list)
 
-        placeholder = "Timecode in '%s'" % video['snippet.title']
-        toc = [QuickPanelItem(i[1], "", i[0], KIND_TOC) for i in toc]
-        sublime.active_window().show_quick_panel(toc,
-                                                lambda i: self.pick_toc(i, toc, video),
-                                                placeholder=placeholder)
+        select_timecode(video, lambda a, b: self.pick_toc(a, b, video, tag, tag_list),
+                        show_back=True)
 
-    def pick_toc(self, idx, toc, video):
-        if idx != -1:
-            self.link_at_timecode(video, toc[idx].annotation)
+    def pick_toc(self, timecode, text, video, tag, tag_list):
+        if timecode != None:
+            if timecode == "_back":
+                return self.pick_tag(tag, tag_list)
 
-    def link_at_timecode(self, video, timecode=None):
-        link = make_video_link(video['id'], timecode)
-        sublime.set_clipboard(link)
-        sublime.status_message('URL Copied: %s' % link)
+            link = make_video_link(video['id'], timecode)
+            sublime.set_clipboard(link)
+            sublime.status_message('URL Copied: %s' % link)
 
 
 ###----------------------------------------------------------------------------
