@@ -193,6 +193,7 @@ def select_tag(videos, callback, tag_list=None, placeholder=None):
                     tag_list[tag] = []
                 tag_list[tag].append(video)
 
+    placeholder = placeholder or "Browse by tag"
     items = [QuickPanelItem(tag, "", "{} videos".format(len(tag_list[tag])), KIND_TAG)
                 for tag in sorted(tag_list.keys())]
 
@@ -212,6 +213,7 @@ def select_video(videos, callback, show_back=False, placeholder=None):
     special sentinel id of "_back".
     """
     videos = sorted(videos, key=lambda k: int(k["statistics.viewCount"]), reverse=True)
+    placeholder = placeholder or "Select video"
     items = [QuickPanelItem(
                v['snippet.title'],
                "",
