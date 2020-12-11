@@ -110,7 +110,11 @@ class YoutubeRequest():
     auth_req = None
     auth_resp = None
 
+    run_args = None
+
     def run(self, **kwargs):
+        self.run_args = kwargs
+
         if not youtube_is_authorized():
             self.request("authorize", "_internal_auth", "Authorizing")
         else:
