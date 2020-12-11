@@ -1,6 +1,7 @@
 [
     { "caption": "YouTubeEditor: Login",       "command": "youtube_editor_authorize" },
     { "caption": "YouTubeEditor: Get Video Link", "command": "youtube_editor_get_video_link" },
+    { "caption": "YouTubeEditor: Get Video Link by Tag", "command": "youtube_editor_get_video_link", "args": {"by_tags": true} },
     { "caption": "YouTubeEditor: Edit Video Details", "command": "youtube_editor_edit_video_details" },
 
     { "caption": "YouTubeEditor: New Window", "command": "youtube_editor_new_window" },
