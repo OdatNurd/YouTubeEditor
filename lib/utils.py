@@ -15,6 +15,10 @@ KIND_PUBLIC =   (sublime.KIND_ID_SNIPPET,    " ", "Public Video")
 KIND_UNLISTED = (sublime.KIND_ID_NAVIGATION, "U", "Unlisted Video")
 KIND_PRIVATE =  (sublime.KIND_ID_FUNCTION,   "P", "Private Video")
 
+# When browsing in the quick panel, this KIND is used to signify the special
+# item that indicates that we want to go back up a level in the hierarchy.
+KIND_BACK =  (sublime.KIND_ID_NAMESPACE,   "↑", "Go up one level")
+
 # Map YouTube video privacy values to one of our kind values.
 _kind_map = {
      "private": KIND_PRIVATE,
@@ -102,7 +106,7 @@ def get_window_link(view, window=None, event=None):
     """
     Make and returns a link to the video whose details are stored in the given
     window. If an event is provided and the text at the event location is a
-    timecode, the generated link will include timecode information.
+    time code, the generated link will include time code information.
 
     If the window is not provided, it defaults to the window associated with
     the given view. If there's no window or the window has no associated video
@@ -118,11 +122,15 @@ def get_window_link(view, window=None, event=None):
     return make_video_link(video_id, timecode)
 
 
-def select_video(videos, callback, placeholder=None):
+def select_video(videos, callback, show_back=False, placeholder=None):
     """
     Given a list of video information, prompt the user with a quick panel to
     choose an item. The callback will be invoked with a single parameter; None
     if the user cancelled the selection, or the video the user selected.
+
+    If show_back is True, an extra item is added to allow the user to go back
+    to a previous panel; in this case the callback returns a video with the
+    special sentinel id of "_back".
     """
     videos = sorted(videos, key=lambda k: int(k["statistics.viewCount"]), reverse=True)
     items = [QuickPanelItem(
@@ -135,10 +143,21 @@ def select_video(videos, callback, placeholder=None):
                _kind_map.get(v['status.privacyStatus'], KIND_PUBLIC)
              ) for v in videos]
 
-    sublime.active_window().show_quick_panel(items,
-                            lambda i: callback(None if i == -1 else videos[i]),
-                            placeholder=placeholder)
+    if show_back:
+        items.insert(0, QuickPanelItem("..", "", "Go back", KIND_BACK))
 
+    def pick(i):
+        if i == -1:
+            return callback(None)
+
+        if show_back:
+            if i == 0: return callback({"id": "_back"})
+            else:
+                i -= 1
+
+        callback(videos[i])
+
+    sublime.active_window().show_quick_panel(items, pick, placeholder=placeholder)
 
 
 ## ----------------------------------------------------------------------------
