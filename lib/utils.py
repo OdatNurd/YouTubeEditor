@@ -139,50 +139,21 @@ def get_window_link(view, window=None, event=None):
     return make_video_link(video_id, timecode)
 
 
-def select_timecode(video, callback, show_back=False, placeholder=None):
-    """
-    Given a video, grab the table of contents from the video description and
-    prompt the user to choose one of the entries. The callback will be called
-    with the time code value and the TOC text if the entry chosen. If the
-    user cancels, both values are None
-
-    If there is no table of contents in the video, the callback is invoked
-    immediately with a time code of "00:00" and a text of None.
-
-    If show_back is True, an extra entry to allow the user to go back a panel is
-    displayed. If this item is chosen, the toc entry is the special sentinel
-    value "_back".
-    """
-    toc = _toc_regex.findall(video['snippet.description'])
-    if not toc:
-        return callback("00:00", None)
-
-    placeholder = placeholder or "Timecode in '%s'" % video['snippet.title']
-    toc = [QuickPanelItem(i[1], "", i[0], KIND_TOC) for i in toc]
-
-    if show_back:
-        toc.insert(0, QuickPanelItem("..", "", "Go back", KIND_BACK))
-
-    def pick(i):
-        if i == -1:
-            return callback(None, None)
-        elif show_back and i == 0:
-            return callback("_back", "")
-
-        callback(toc[i].annotation, toc[i].trigger)
-
-    sublime.active_window().show_quick_panel(toc, pick, placeholder=placeholder)
-
-
 def select_tag(videos, callback, tag_list=None, placeholder=None):
     """
-    Given a list of videos OR a list of tags, display to the user a list of all
-    of the unique tags to allow them to select one. The callback is invoked
-    with the selected tag and a dictionary where the keys are unique tags seen
-    in the video list and the values are arrays of videos that appeared.
+    Given a list of videos OR a dictionary of tags (see below), prompt the user
+    with  a quick panel to choose a tag. The callback will be invoked with two
+    arguments; the name of the tag chosen, and a list of videos that contain
+    that tag.
 
-    Specify videos to create a tag_list (which is returned in the callback), or
-    specify a previously created tag_list to reuse it.
+    The function can be given either a list of video dictionaries in videos, OR
+    a dictionary of tags in tag_list. If a tag_list is provided, it is used
+    directly, and will also be passed back in the callback. If tag_list is
+    None, the list of videos is used to construct the tag dictionary.
+
+    tag_list (when provided or passed to a callback) is a dictionary where the
+    key is the text of a tag and the value is an array of all videos that
+    contain that tag.
     """
     if tag_list is None:
         tag_list = {}
@@ -204,13 +175,13 @@ def select_tag(videos, callback, tag_list=None, placeholder=None):
 
 def select_video(videos, callback, show_back=False, placeholder=None):
     """
-    Given a list of video information, prompt the user with a quick panel to
-    choose an item. The callback will be invoked with a single parameter; None
-    if the user cancelled the selection, or the video the user selected.
+    Given a list of video records, prompt the user with a quick panel to choose
+    a video. The callback will be invoked with a single parameter; None if the
+    user cancelled the selection, or the video the user selected.
 
-    If show_back is True, an extra item is added to allow the user to go back
-    to a previous panel; in this case the callback returns a video with the
-    special sentinel id of "_back".
+    If show_back is True, an extra item is added to the list to allow the user
+    to go back to a previous panel; in this case the callback returns a video
+    with the special sentinel id of "_back".
     """
     videos = sorted(videos, key=lambda k: int(k["statistics.viewCount"]), reverse=True)
     placeholder = placeholder or "Select video"
@@ -239,6 +210,40 @@ def select_video(videos, callback, show_back=False, placeholder=None):
         callback(videos[i])
 
     sublime.active_window().show_quick_panel(items, pick, placeholder=placeholder)
+
+
+def select_timecode(video, callback, show_back=False, placeholder=None):
+    """
+    Given a video dictionary, display the table of contents from the
+    description and prompt the user with a quick panel to choose an item. The
+    callback will be invoked with two arguments; the timecode string for the
+    table of contents entry, and the text of the entry itself.
+
+    If the user cancels the selection, both arguments will be None instead.
+
+    If show_back is True, an extra item is added to the list to allow the user
+    to go back to a previous panel; in this case the timecode provided to the
+    callback is the special sentinel value "_back".
+    """
+    toc = _toc_regex.findall(video['snippet.description'])
+    if not toc:
+        return callback("00:00", None)
+
+    placeholder = placeholder or "Timecode in '%s'" % video['snippet.title']
+    toc = [QuickPanelItem(i[1], "", i[0], KIND_TOC) for i in toc]
+
+    if show_back:
+        toc.insert(0, QuickPanelItem("..", "", "Go back", KIND_BACK))
+
+    def pick(i):
+        if i == -1:
+            return callback(None, None)
+        elif show_back and i == 0:
+            return callback("_back", "")
+
+        callback(toc[i].annotation, toc[i].trigger)
+
+    sublime.active_window().show_quick_panel(toc, pick, placeholder=placeholder)
 
 
 ## ----------------------------------------------------------------------------
