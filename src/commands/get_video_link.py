@@ -20,6 +20,7 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
     requests the user to log in first if not.
     """
     def _authorized(self, request, result):
+        self.use_tags = self.run_args.get("by_tags", False)
         self.request("channel_details", reason="Get Channel Info")
 
     def _channel_details(self, request, result):
@@ -30,7 +31,14 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
                       full_details=True)
 
     def _playlist_contents(self, request, result):
-        select_tag(result, self.pick_tag, placeholder="Copy video link from tag")
+        if self.use_tags:
+            select_tag(result, self.pick_tag, placeholder="Copy video link from tag")
+        else:
+            # Pass the video list as the tag_list to the lambda so it can be
+            # picked up and used again if the user goes back while editing the
+            # timecode.
+            select_video(result, lambda vid: self.select_video(vid, None, result),
+                         placeholder="Copy video link")
 
     def pick_tag(self, tag, tag_list):
         if tag is not None:
@@ -55,7 +63,11 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
     def pick_toc(self, timecode, text, video, tag, tag_list):
         if timecode != None:
             if timecode == "_back":
-                return self.pick_tag(tag, tag_list)
+                if self.use_tags:
+                    return self.pick_tag(tag, tag_list)
+                else:
+                    return select_video(tag_list, lambda vid: self.select_video(vid, None, None),
+                                        placeholder="Copy video link")
 
             link = make_video_link(video['id'], timecode)
             sublime.set_clipboard(link)
