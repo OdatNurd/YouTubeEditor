@@ -19,6 +19,10 @@ KIND_PRIVATE =  (sublime.KIND_ID_FUNCTION,   "P", "Private Video")
 # item that indicates that we want to go back up a level in the hierarchy.
 KIND_BACK =  (sublime.KIND_ID_NAMESPACE,   "↑", "Go up one level")
 
+# When browsing in the quick panel, this KIND is used to signify that the item
+# in the list is a tag on a video.
+KIND_TAG = (sublime.KIND_ID_NAMESPACE, "➤", "Video tag")
+
 # Map YouTube video privacy values to one of our kind values.
 _kind_map = {
      "private": KIND_PRIVATE,
@@ -120,6 +124,33 @@ def get_window_link(view, window=None, event=None):
         video_id = window.settings().get("_yte_video_id")
 
     return make_video_link(video_id, timecode)
+
+
+def select_tag(videos, callback, tag_list=None, placeholder=None):
+    """
+    Given a list of videos OR a list of tags, display to the user a list of all
+    of the unique tags to allow them to select one. The callback is invoked
+    with the selected tag and a dictionary where the keys are unique tags seen
+    in the video list and the values are arrays of videos that appeared.
+
+    Specify videos to create a tag_list (which is returned in the callback), or
+    specify a previously created tag_list to reuse it.
+    """
+    if tag_list is None:
+        tag_list = {}
+        for video in videos:
+            tags = video.get('snippet.tags', [])
+            for tag in tags:
+                if tag not in tag_list:
+                    tag_list[tag] = []
+                tag_list[tag].append(video)
+
+    items = [QuickPanelItem(tag, "", "{} videos".format(len(tag_list[tag])), KIND_TAG)
+                for tag in sorted(tag_list.keys())]
+
+    sublime.active_window().show_quick_panel(items,
+        lambda i: callback(None if i == -1 else items[i].trigger, tag_list),
+        placeholder=placeholder)
 
 
 def select_video(videos, callback, show_back=False, placeholder=None):
