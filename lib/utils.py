@@ -139,12 +139,16 @@ def get_window_link(view, window=None, event=None):
     return make_video_link(video_id, timecode)
 
 
-def select_tag(videos, callback, tag_list=None, placeholder=None):
+def select_tag(videos, callback, show_back=False, tag_list=None, placeholder=None):
     """
     Given a list of videos OR a dictionary of tags (see below), prompt the user
     with  a quick panel to choose a tag. The callback will be invoked with two
     arguments; the name of the tag chosen, and a list of videos that contain
     that tag.
+
+    If show_back is true, an extra item is added to the list to allow the user
+    to go back to a previous panel; in this case the callback is invoked with
+    the special sentinel tag "_back".
 
     The function can be given either a list of video dictionaries in videos, OR
     a dictionary of tags in tag_list. If a tag_list is provided, it is used
@@ -168,9 +172,19 @@ def select_tag(videos, callback, tag_list=None, placeholder=None):
     items = [QuickPanelItem(tag, "", "{} videos".format(len(tag_list[tag])), KIND_TAG)
                 for tag in sorted(tag_list.keys())]
 
-    sublime.active_window().show_quick_panel(items,
-        lambda i: callback(None if i == -1 else items[i].trigger, tag_list),
-        placeholder=placeholder)
+    if show_back:
+        items.insert(0, QuickPanelItem("..", "", "Go back", KIND_BACK))
+
+    def pick(i):
+        if i == -1:
+            return callback(None, tag_list)
+
+        if show_back:
+            if i == 0: return callback("_back", tag_list)
+
+        callback(items[i].trigger, tag_list)
+
+    sublime.active_window().show_quick_panel(items, pick, placeholder=placeholder)
 
 
 def select_video(videos, callback, show_back=False, placeholder=None):

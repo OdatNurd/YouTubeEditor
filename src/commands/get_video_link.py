@@ -32,7 +32,7 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
 
     def _playlist_contents(self, request, result):
         if self.use_tags:
-            select_tag(result, self.pick_tag, placeholder="Copy video link from tag")
+            select_tag(result, self.pick_tag, False, placeholder="Copy video link from tag")
         else:
             # Pass the video list as the tag_list to the lambda so it can be
             # picked up and used again if the user goes back while editing the
@@ -55,7 +55,7 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
             return
 
         if video['id'] == "_back":
-            return select_tag(None, self.pick_tag, tag_list)
+            return select_tag(None, self.pick_tag, False, tag_list)
 
         select_timecode(video, lambda a, b: self.pick_toc(a, b, video, tag, tag_list),
                         show_back=True)
