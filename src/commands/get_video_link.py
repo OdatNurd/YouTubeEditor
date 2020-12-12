@@ -37,12 +37,13 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
             # Pass the video list as the tag_list to the lambda so it can be
             # picked up and used again if the user goes back while editing the
             # timecode.
-            select_video(result, lambda vid: self.select_video(vid, None, result),
+            videos = sorted(result, key=lambda k: int(k["statistics.viewCount"]), reverse=True)
+            select_video(videos, lambda vid: self.select_video(vid, None, videos),
                          placeholder="Copy video link")
 
     def pick_tag(self, tag, tag_list):
         if tag is not None:
-            videos = tag_list[tag]
+            videos = sorted(tag_list[tag], key=lambda k: int(k["statistics.viewCount"]), reverse=True)
 
             placeholder = "Copy video link from tag '%s'" % tag
             # Video ID is in contentDetails.videoId for short results or id for

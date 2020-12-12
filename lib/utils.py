@@ -231,7 +231,6 @@ def select_video(videos, callback, show_back=False, placeholder=None):
     to go back to a previous panel; in this case the callback returns a video
     with the special sentinel id of "_back".
     """
-    videos = sorted(videos, key=lambda k: int(k["statistics.viewCount"]), reverse=True)
     placeholder = placeholder or "Select video"
     items = [QuickPanelItem(
                v['snippet.title'],
