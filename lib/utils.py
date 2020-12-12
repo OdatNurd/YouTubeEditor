@@ -12,9 +12,9 @@ import re
 
 # These specify the kinds to be used to classify videos in the quick panel when
 # choosing;.
-KIND_PUBLIC =   (sublime.KIND_ID_SNIPPET,    " ", "Public Video")
-KIND_UNLISTED = (sublime.KIND_ID_NAVIGATION, "U", "Unlisted Video")
-KIND_PRIVATE =  (sublime.KIND_ID_FUNCTION,   "P", "Private Video")
+KIND_PUBLIC =   (sublime.KIND_ID_SNIPPET,    " ", "Public")
+KIND_UNLISTED = (sublime.KIND_ID_NAVIGATION, "U", "Unlisted")
+KIND_PRIVATE =  (sublime.KIND_ID_FUNCTION,   "P", "Private")
 
 # When browsing in the quick panel, this KIND is used to signify the special
 # item that indicates that we want to go back up a level in the hierarchy.
