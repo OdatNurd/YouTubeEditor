@@ -11,20 +11,18 @@ import re
 
 
 # These specify the kinds to be used to classify videos in the quick panel when
-# choosing; they're chosen based on the colors they have in the Adaptive
-# color scheme, for lack of any better criteria.
+# choosing;.
 KIND_PUBLIC =   (sublime.KIND_ID_SNIPPET,    " ", "Public Video")
 KIND_UNLISTED = (sublime.KIND_ID_NAVIGATION, "U", "Unlisted Video")
 KIND_PRIVATE =  (sublime.KIND_ID_FUNCTION,   "P", "Private Video")
 
-# This specifies the kinds to be used when asking the user to select a timecode
-# as we're choosing a video to copy the link for. The base kind is chosen based
-# on its color in Adaptive for lack of any better criteria.
-KIND_TOC = (sublime.KIND_ID_SNIPPET, "✎", "Table of Contents entry")
-
 # When browsing in the quick panel, this KIND is used to signify the special
 # item that indicates that we want to go back up a level in the hierarchy.
 KIND_BACK =  (sublime.KIND_ID_NAMESPACE,   "↑", "Go up one level")
+
+# This specifies the kinds to be used when asking the user to select a timecode
+# as we're choosing a video to copy the link for.
+KIND_TOC = (sublime.KIND_ID_SNIPPET, "✎", "Table of Contents entry")
 
 # When browsing in the quick panel, this KIND is used to signify that the item
 # in the list is a tag on a video.
@@ -139,12 +137,48 @@ def get_window_link(view, window=None, event=None):
     return make_video_link(video_id, timecode)
 
 
+def select_playlist(playlists, callback, show_back=False, placeholder=None):
+    """
+    Given a list of playlists, prompt the user with a quick panel to choose a
+    playlist. The callback will be invoked with a single parameter; None if the
+    user cancelled the selection, or the video the user selected.
+
+    If show_back is True, an extra item is added to the list to allow the user
+    to go back to a previous panel; in this case the callback returns a
+    playlist with the special sentinel id of "_back".
+    """
+    placeholder = placeholder or "Select playlist"
+    items = [QuickPanelItem(
+               p['snippet.title'],
+               "",
+               "{0} items".format(p.get('contentDetails.itemCount', '???')),
+               _kind_map.get(p['status.privacyStatus'], KIND_PRIVATE)
+             ) for p in playlists]
+
+    if show_back:
+        items.insert(0, QuickPanelItem("..", "", "Go back", KIND_BACK))
+
+    def pick(i):
+        if i == -1:
+            return callback(None)
+
+        if show_back:
+            if i == 0: return callback({"id": "_back"})
+            else: i -= 1
+
+        callback(playlists[i])
+
+    sublime.active_window().show_quick_panel(items, pick, placeholder=placeholder)
+
+
 def select_tag(videos, callback, show_back=False, tag_list=None, placeholder=None):
     """
     Given a list of videos OR a dictionary of tags (see below), prompt the user
     with  a quick panel to choose a tag. The callback will be invoked with two
     arguments; the name of the tag chosen, and a list of videos that contain
     that tag.
+
+    If the user cancels the selection, both arguments will be None instead.
 
     If show_back is true, an extra item is added to the list to allow the user
     to go back to a previous panel; in this case the callback is invoked with
@@ -218,8 +252,7 @@ def select_video(videos, callback, show_back=False, placeholder=None):
 
         if show_back:
             if i == 0: return callback({"id": "_back"})
-            else:
-                i -= 1
+            else: i -= 1
 
         callback(videos[i])
 
