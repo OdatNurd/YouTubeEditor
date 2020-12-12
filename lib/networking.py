@@ -176,6 +176,7 @@ class NetworkThread(Thread):
             "deauthorize": self.deauthenticate,
             "channel_details": self.channel_details,
             "playlist_contents": self.playlist_contents,
+            "playlist_list": self.playlist_list,
             "video_details": self.video_details
         }
 
@@ -250,6 +251,50 @@ class NetworkThread(Thread):
             log("API: No channel information available")
 
         return result
+
+    def playlist_list(self, request):
+        """
+        Obtain information on the playlists defined, either in the channel
+        with the ID provided, or for the currently authenticated user.
+
+        The results of this method are the same both ways (i.e. one does not
+        return different data than the other) when used for the same account.
+        """
+        if request["channel_id"]:
+            args = {"channelId": request["channel_id"]}
+            log("API: Fetching playlists for channel: {0}", request["channel_id"])
+        else:
+            args = {"mine": True}
+            log("API: Fetching playlists for logged in user")
+
+        # Request breakdown is as follows.
+        #
+        # id:              the unique playlist ID
+        # contentDetails:  the number of items contained in the playlist
+        # snippet:         basic playlist details (title, description, etc)
+        # status:          privacy status
+        list_request = self.youtube.playlists().list(
+            part="id,snippet,contentDetails,status",
+            maxResults=50,
+            **args
+        )
+
+        # This is an example of a paged request that will keep executing going
+        # through pages until all information is captured; you could also do
+        # this piecemeal if needed.
+        results = []
+        while list_request:
+            response = list_request.execute()
+
+            # Grab information about each playlist.
+            for playlist in response['items']:
+                results.append(dotty(playlist))
+
+            list_request = self.youtube.playlistItems().list_next(
+                list_request, response)
+
+        log("API: Found {0} playlists", len(results))
+        return results
 
     def playlist_contents(self, request):
         """
