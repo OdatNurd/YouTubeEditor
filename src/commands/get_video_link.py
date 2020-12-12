@@ -63,10 +63,10 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
             self.pick_playlist(self.uploads_playlist)
 
     def _playlist_list(self, request, result):
-        playlists = sorted(result, key=lambda k: k["snippet.title"])
-        playlists.insert(0, self.uploads_playlist)
+        self.playlists = sorted(result, key=lambda k: k["snippet.title"])
+        self.playlists.insert(0, self.uploads_playlist)
 
-        select_playlist(playlists, self.pick_playlist)
+        select_playlist(self.playlists, self.pick_playlist)
 
     def _playlist_contents(self, request, result):
         if self.use_tags:
@@ -81,14 +81,19 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
                          placeholder="Copy video link")
 
     def pick_playlist(self, playlist):
-        self.request("playlist_contents",
-                      reason="Get playlist contents",
-                      playlist_id=playlist['id'],
-                      part="id,snippet,status,statistics",
-                      full_details=True)
+        if playlist != None:
+            self.request("playlist_contents",
+                          reason="Get playlist contents",
+                          playlist_id=playlist['id'],
+                          part="id,snippet,status,statistics",
+                          full_details=True)
 
     def pick_tag(self, tag, tag_list):
         if tag is not None:
+            if tag == "_back":
+                if self.use_playlists:
+                    return select_playlist(self.playlists, self.pick_playlist)
+
             videos = sorted(tag_list[tag], key=lambda k: int(k["statistics.viewCount"]), reverse=True)
 
             placeholder = "Copy video link from tag '%s'" % tag
@@ -102,7 +107,13 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
             return
 
         if video['id'] == "_back":
-            return select_tag(None, self.pick_tag, False, tag_list)
+            # When using both tags and playlists, the browse order should send
+            # us back to tags first and from there to playlists.
+            if self.use_tags:
+                return select_tag(None, self.pick_tag, self.use_playlists, tag_list)
+
+            return select_playlist(self.playlists, self.pick_playlist)
+
 
         select_timecode(video, lambda a, b: self.pick_toc(a, b, video, tag, tag_list),
                         show_back=True)
@@ -114,6 +125,7 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
                     return self.pick_tag(tag, tag_list)
                 else:
                     return select_video(tag_list, lambda vid: self.select_video(vid, None, None),
+                                        show_back=self.use_playlists,
                                         placeholder="Copy video link")
 
             link = make_video_link(video['id'], timecode)
