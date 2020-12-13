@@ -169,6 +169,17 @@ class NetworkThread(Thread):
         self.requests = queue
         self.youtube = None
 
+        # This dictionary contains a cache of the data that has been requested
+        # during this session; requests that ask for data already in the cache
+        # will retreive that data immediately with no further requests being
+        # made unless they request a refresh.
+        self.cache = dotty({
+            # The information on fetched channel information; currently this
+            # is the first item from the original response; in future it will
+            # be keyed by channel ID.
+            # "channel": {}
+        })
+
         # The requests that we know how to service, and what method invokes
         # them.
         self.request_map = {
@@ -221,7 +232,16 @@ class NetworkThread(Thread):
         user, even if there's more than one.
         """
         log("API: Fetching channel details")
-        part = request["part"] or 'id,snippet,brandingSettings,contentDetails,statistics,status'
+
+        if "channel" in self.cache:
+            if request["refresh"]:
+                log("DBG: Clearing Channel Cache")
+                del self.cache["channel"]
+            else:
+                log("DBG: Returning cached data")
+                return self.cache["channel"]
+        else:
+            log("DBG: Cache miss on channel data")
 
         # Request breakdown is as follows. Note that snippet and
         # brandingSettings have overlap between them, but each has information
@@ -235,18 +255,16 @@ class NetworkThread(Thread):
         # status            privacy status, upload abilities, etc
         response = self.youtube.channels().list(
             mine=True,
-            part=part
+            part='id,snippet,brandingSettings,contentDetails,statistics,status'
         ).execute()
 
         if response["items"]:
             result = dotty(response["items"][0])
-            if 'brandingSettings' in part:
-                log("API: Retreived information for: {0}", result["brandingSettings.channel.title"])
-            elif 'id' in part:
-                log("API: Retreived information for: {0}", result["id"])
-            else:
-                log("API: Retreived channel information")
+            self.cache["channel"] = result
+            log("API: Retreived information for: {0}", result["brandingSettings.channel.title"])
+            log("DBG: Cached channel response")
         else:
+            # No cache on an empty result; might need to try again later.
             result = dotty()
             log("API: No channel information available")
 
