@@ -25,9 +25,10 @@ class YoutubeEditorEditVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applic
         self.request("channel_details", reason="Get Channel Info")
 
     def _channel_details(self, request, result):
+        self.channel = result[0]
         self.request("playlist_contents",
                       reason="Get Uploaded Videos",
-                      playlist_id=result['contentDetails.relatedPlaylists.uploads'],
+                      playlist_id=self.channel['contentDetails.relatedPlaylists.uploads'],
                       part="id,snippet,status,statistics",
                       full_details=True)
 

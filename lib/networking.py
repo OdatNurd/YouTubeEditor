@@ -174,10 +174,9 @@ class NetworkThread(Thread):
         # will retreive that data immediately with no further requests being
         # made unless they request a refresh.
         self.cache = dotty({
-            # The information on fetched channel information; currently this
-            # is the first item from the original response; in future it will
-            # be keyed by channel ID.
-            # "channel": {}
+            # The information on fetched channel information; this is a list of
+            # all channels associated with the currently authenticated user.
+            # "channel_details": []
         })
 
         # The requests that we know how to service, and what method invokes
@@ -245,21 +244,18 @@ class NetworkThread(Thread):
 
     def channel_details(self, request):
         """
-        Obtain details about the channel that is associated with the currently
-        authenticated user.
-
-        Currently, this always returns the first channel associated with the
-        user, even if there's more than one.
+        Obtain details about the channels that are associated with the
+        currently authenticated user.
         """
         log("API: Fetching channel details")
 
-        if "channel" in self.cache:
+        if "channel_details" in self.cache:
             if request["refresh"]:
                 log("DBG: Clearing Channel Cache")
-                del self.cache["channel"]
+                del self.cache["channel_details"]
             else:
                 log("DBG: Returning cached data")
-                return self.cache["channel"]
+                return self.cache["channel_details"]
         else:
             log("DBG: Cache miss on channel data")
 
@@ -278,15 +274,15 @@ class NetworkThread(Thread):
             part='id,snippet,brandingSettings,contentDetails,statistics,status'
         ).execute()
 
-        if response["items"]:
-            result = dotty(response["items"][0])
-            self.cache["channel"] = result
-            log("API: Retreived information for: {0}", result["brandingSettings.channel.title"])
-            log("DBG: Cached channel response")
-        else:
-            # No cache on an empty result; might need to try again later.
-            result = dotty()
-            log("API: No channel information available")
+        if "items" not in response or not response["items"]:
+            raise KeyError("No channels available for the current user")
+
+        result = [dotty(channel) for channel in response["items"]]
+        log("API: Retreived information for {0} channel(s):", len(result))
+        log("API: Channels: {0}", str([c['brandingSettings.channel.title'] for c in result]))
+
+        self.cache["channel_details"] = result
+        log("DBG: Cached channel response")
 
         return result
 
