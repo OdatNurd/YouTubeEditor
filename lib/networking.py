@@ -235,8 +235,9 @@ class NetworkThread(Thread):
         """
         log("THR: Removing stored login credentials")
         try:
-            os.remove(stored_credentials_path())
             self.youtube = None
+            self.cache = dotty({})
+            os.remove(stored_credentials_path())
         except:
             pass
 
