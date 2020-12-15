@@ -427,7 +427,7 @@ class NetworkThread(Thread):
         request = request_obj["request"]
         callback = request_obj["callback"]
 
-        success = True
+        success = False
         result = None
 
         with BusySpinner(request.reason):
@@ -436,12 +436,14 @@ class NetworkThread(Thread):
                 if handler is None:
                     raise ValueError("Unknown request '%s'" % request.name)
 
-                success = True
                 result = handler(request)
+                success = True
+
+            except HttpError as err:
+                result = dotty(json.loads(err.content.decode('utf-8')))
 
             except Exception as err:
-                success = False
-                result = dotty(json.loads(err.content.decode('utf-8')))
+                result = dotty({"error": {"code": -1, "message": str(err) } })
 
         sublime.set_timeout(lambda: callback(success, result))
         self.requests.task_done()
