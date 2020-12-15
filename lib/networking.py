@@ -194,6 +194,25 @@ class NetworkThread(Thread):
     # def __del__(self):
     #     log("== Destroying network thread")
 
+    def validate(self, request, required=None, any_of=None):
+        """
+        Takes an incoming request and optional sets of required and optional
+        arguments for that request.
+
+        All arguments in required must appear in the request, and at least one
+        of any_of; if this is not the case, it's an error. Either set can be
+        None to indicate that there are no required or semi-optional arguments.
+        """
+        args = set(request)
+
+        if required and not required.issubset(args):
+            raise ValueError("missing required arguments: {}".format(
+                ", ".join(required - args)))
+
+        if any_of and not args & any_of:
+            raise ValueError("arguments require at least one of: {}".format(
+                ", ".join(any_of)))
+
     def authenticate(self, request):
         """
         Start the authorization flow. If the user has never authorized the app,
