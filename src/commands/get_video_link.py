@@ -58,7 +58,8 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
         self.uploads_playlist['id'] = result['contentDetails.relatedPlaylists.uploads']
 
         if self.use_playlists:
-            self.request("playlist_list", reason="Get user playlists")
+            self.request("playlist_list", channel_id=result['id'],
+                         reason="Get user playlists")
         else:
             self.pick_playlist(self.uploads_playlist)
 

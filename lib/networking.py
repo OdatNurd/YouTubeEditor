@@ -291,18 +291,11 @@ class NetworkThread(Thread):
 
     def playlist_list(self, request):
         """
-        Obtain information on the playlists defined, either in the channel
-        with the ID provided, or for the currently authenticated user.
-
-        The results of this method are the same both ways (i.e. one does not
-        return different data than the other) when used for the same account.
+        Obtain information on the playlists that are defined for the channel
+        with the ID provided.
         """
-        if request["channel_id"]:
-            args = {"channelId": request["channel_id"]}
-            log("API: Fetching playlists for channel: {0}", request["channel_id"])
-        else:
-            args = {"mine": True}
-            log("API: Fetching playlists for logged in user")
+        self.validate(request, {"channel_id"})
+        log("API: Fetching playlists for channel: {0}", request["channel_id"])
 
         # Request breakdown is as follows.
         #
@@ -311,9 +304,9 @@ class NetworkThread(Thread):
         # snippet:         basic playlist details (title, description, etc)
         # status:          privacy status
         list_request = self.youtube.playlists().list(
+            channelId=request["channel_id"],
             part="id,snippet,contentDetails,status",
-            maxResults=50,
-            **args
+            maxResults=50
         )
 
         # This is an example of a paged request that will keep executing going
@@ -344,6 +337,7 @@ class NetworkThread(Thread):
         does not include video details like view count and such, which are not
         always relevant.
         """
+        self.validate(request, {"playlist_id"})
         log("API: Fetching playlist contents for playlist: {0}", request["playlist_id"])
 
         # Request breakdown is as follows. Note that snippet and contentDetails
@@ -415,8 +409,8 @@ class NetworkThread(Thread):
         Given the ID of a video for a user, fetch the details for that video
         for editing purposes.
         """
+        self.validate(request, {"video_id"})
         log("API: Fetching video details for: {0}", request["video_id"])
-        part = request["part"] or 'snippet,contentDetails,status,statistics'
 
         # Request breakdown is as follows. Note that snippet and contentDetails
         # have overlap between them, but each has information that the other
@@ -426,6 +420,7 @@ class NetworkThread(Thread):
         # contentDetails:   content detais (publish time, duration, etc)
         # status:           video status (uploaded, processed, private, etc)
         # statistics:       statistics (views, likes, dislikes, etc)
+        part = request["part"] or 'snippet,contentDetails,status,statistics'
         response = self.youtube.videos().list(
             id=request["video_id"],
             part=part
