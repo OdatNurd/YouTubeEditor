@@ -96,9 +96,7 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
         if playlist != None:
             self.request("playlist_contents",
                           reason="Get playlist contents",
-                          playlist_id=playlist['id'],
-                          part="id,snippet,status,statistics",
-                          full_details=True)
+                          playlist_id=playlist['id'])
 
     def pick_tag(self, tag, tag_list):
         if tag is not None:
