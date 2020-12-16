@@ -169,15 +169,8 @@ class NetworkThread(Thread):
         self.requests = queue
         self.youtube = None
 
-        # This dictionary contains a cache of the data that has been requested
-        # during this session; requests that ask for data already in the cache
-        # will retreive that data immediately with no further requests being
-        # made unless they request a refresh.
-        self.cache = dotty({
-            # The information on fetched channel information; this is a list of
-            # all channels associated with the currently authenticated user.
-            # "channel_list": []
-        })
+        # Set up the cache data structure
+        self._init_cache()
 
         # The requests that we know how to service, and what method invokes
         # them.
@@ -189,6 +182,26 @@ class NetworkThread(Thread):
             "playlist_list": self.playlist_list,
             "video_details": self.video_details
         }
+
+    def _init_cache(self):
+        """
+        Set up our internal cache object to be empty and ready to track the
+        results of our data requests.
+        """
+        # This dictionary contains a cache of the data that has been requested
+        # during this session; requests that ask for data already in the cache
+        # will retreive that data immediately with no further requests being
+        # made unless they request a refresh.
+        self.cache = dotty({
+            # The information on fetched channel information; this is a list of
+            # all channels associated with the currently authenticated user.
+            # "channel_list": []
+
+            # The information on fetched channel details; this object is keyed
+            # on channel ID's, with the value being the details for that
+            # channel.
+            "channel_details": {}
+        })
 
     # def __del__(self):
     #     log("== Destroying network thread")
@@ -235,7 +248,7 @@ class NetworkThread(Thread):
         log("THR: Removing stored login credentials")
         try:
             self.youtube = None
-            self.cache = dotty({})
+            self._init_cache()
             os.remove(stored_credentials_path())
         except:
             pass
