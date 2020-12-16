@@ -201,7 +201,12 @@ class NetworkThread(Thread):
             # The information on fetched channel details; this object is keyed
             # on channel ID's, with the value being the details for that
             # channel.
-            "channel_details": {}
+            "channel_details": {},
+
+            # The information on fetched playlists; this object is keyed on
+            # channel ID's, with the value being a list of all playlists that
+            # appear on that channel
+            "playlist_list": {}
         })
 
     # def __del__(self):
@@ -335,7 +340,19 @@ class NetworkThread(Thread):
         with the ID provided.
         """
         self.validate(request, {"channel_id"})
-        log("API: Fetching playlists for channel: {0}", request["channel_id"])
+        channel_id = request["channel_id"]
+
+        log("API: Fetching playlists for channel: {0}", channel_id)
+
+        if channel_id in self.cache["playlist_list"]:
+            if request["refresh"]:
+                log("DBG: Clearing Playlist Cache")
+                del self.cache["playlist_list"][channel_id]
+            else:
+                log("DBG: Returning cached data for playlist")
+                return self.cache["playlist_list"][channel_id]
+        else:
+            log("DBG: Cache miss on playlist data")
 
         # Request breakdown is as follows.
         #
@@ -344,7 +361,7 @@ class NetworkThread(Thread):
         # snippet:         basic playlist details (title, description, etc)
         # status:          privacy status
         list_request = self.youtube.playlists().list(
-            channelId=request["channel_id"],
+            channelId=channel_id,
             part="id,snippet,contentDetails,status",
             maxResults=50
         )
@@ -364,6 +381,11 @@ class NetworkThread(Thread):
                 list_request, response)
 
         log("API: Found {0} playlists", len(results))
+
+        self.cache["playlist_list"][channel_id] = results
+
+        log("DBG: Cached playlist response")
+
         return results
 
     def playlist_contents(self, request):
