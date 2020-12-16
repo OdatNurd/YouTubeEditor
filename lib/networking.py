@@ -177,6 +177,7 @@ class NetworkThread(Thread):
         self.request_map = {
             "authorize": self.authenticate,
             "deauthorize": self.deauthenticate,
+            "channel_details": self.channel_details,
             "channel_list": self.channel_list,
             "playlist_contents": self.playlist_contents,
             "playlist_list": self.playlist_list,
@@ -255,6 +256,31 @@ class NetworkThread(Thread):
 
         return "Deauthenticated"
 
+    def channel_details(self, request):
+        """
+        Given a channel ID, obtain the specifics about that particular channel.
+        """
+        self.validate(request, {"channel_id"})
+        log("API: Fetching channel details for channel {0}", request["channel_id"])
+
+        channel_id = request["channel_id"]
+
+        if channel_id in self.cache['channel_details']:
+            if request["refresh"]:
+                log("DBG: Clearing Channel Cache (in ID)")
+                del self.cache["channel_list"]
+            else:
+                log("DBG: Returning cached data (in ID)")
+                return self.cache["channel_details"][channel_id]
+        else:
+            log("DBG: Cache miss on channel data (in ID)")
+
+        self.channel_list(Request("channel_list"))
+        if channel_id in self.cache["channel_details"]:
+            return self.cache["channel_details"][channel_id]
+
+        raise KeyError("No channel with id {} found".format(channel_id))
+
     def channel_list(self, request):
         """
         Obtain details about the channels that are associated with the
@@ -294,7 +320,11 @@ class NetworkThread(Thread):
         log("API: Retreived information for {0} channel(s):", len(result))
         log("API: Channels: {0}", str([c['brandingSettings.channel.title'] for c in result]))
         log("API: Channels: Public video count: {0}", str([c['statistics.videoCount'] for c in result]))
+
         self.cache["channel_list"] = result
+        for channel in result:
+            self.cache["channel_details"][channel["id"]] = channel
+
         log("DBG: Cached channel response")
 
         return result

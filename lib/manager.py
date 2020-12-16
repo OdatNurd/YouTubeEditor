@@ -75,7 +75,7 @@ class NetworkManager():
         shifts between threads.
         """
         if success:
-            if request.name not in ('channel_list'):
+            if request.name not in ('channel_list', 'channel_details'):
                 self.cache[request] = result
         elif request in self.cache:
             del self.cache[request]
