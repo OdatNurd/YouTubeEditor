@@ -55,7 +55,12 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
 
     def _channel_details(self, request, result):
         self.channel = result[0]
+
+        # Make a fake playlist from a template; populate it with the public
+        # video count. The count will be adjusted later if/when the user
+        # browses into the Uploads playlist.
         self.uploads_playlist = dotty(_upload_template)
+        self.uploads_playlist['contentDetails.itemCount'] = self.channel['statistics.videoCount']
         self.uploads_playlist['id'] = self.channel['contentDetails.relatedPlaylists.uploads']
 
         if self.use_playlists:
@@ -74,6 +79,11 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
         if self.use_tags:
             select_tag(result, self.pick_tag, show_back=self.use_playlists, placeholder="Copy video link from tag")
         else:
+            # If this is the uploads playlist, update the video count to
+            # include non-public videos.
+            if request["playlist_id"] == self.uploads_playlist['id']:
+                self.uploads_playlist['contentDetails.itemCount'] = len(result)
+
             # Pass the video list as the tag_list to the lambda so it can be
             # picked up and used again if the user goes back while editing the
             # timecode.

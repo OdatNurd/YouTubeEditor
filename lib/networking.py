@@ -280,7 +280,7 @@ class NetworkThread(Thread):
         result = [dotty(channel) for channel in response["items"]]
         log("API: Retreived information for {0} channel(s):", len(result))
         log("API: Channels: {0}", str([c['brandingSettings.channel.title'] for c in result]))
-
+        log("API: Channels: Public video count: {0}", str([c['statistics.videoCount'] for c in result]))
         self.cache["channel_details"] = result
         log("DBG: Cached channel response")
 
