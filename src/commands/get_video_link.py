@@ -51,9 +51,9 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
     def _authorized(self, request, result):
         self.use_tags = self.run_args.get("by_tags", False)
         self.use_playlists = self.run_args.get("by_playlists", False)
-        self.request("channel_details", reason="Get Channel Info")
+        self.request("channel_list", reason="Get Channel Info")
 
-    def _channel_details(self, request, result):
+    def _channel_list(self, request, result):
         self.channel = result[0]
 
         # Make a fake playlist from a template; populate it with the public

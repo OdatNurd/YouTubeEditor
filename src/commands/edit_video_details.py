@@ -22,9 +22,9 @@ class YoutubeEditorEditVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applic
     requests the user to log in first if not.
     """
     def _authorized(self, request, result):
-        self.request("channel_details", reason="Get Channel Info")
+        self.request("channel_list", reason="Get Channel Info")
 
-    def _channel_details(self, request, result):
+    def _channel_list(self, request, result):
         self.channel = result[0]
         self.request("playlist_contents",
                       reason="Get Uploaded Videos",

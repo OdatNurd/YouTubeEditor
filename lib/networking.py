@@ -176,7 +176,7 @@ class NetworkThread(Thread):
         self.cache = dotty({
             # The information on fetched channel information; this is a list of
             # all channels associated with the currently authenticated user.
-            # "channel_details": []
+            # "channel_list": []
         })
 
         # The requests that we know how to service, and what method invokes
@@ -184,7 +184,7 @@ class NetworkThread(Thread):
         self.request_map = {
             "authorize": self.authenticate,
             "deauthorize": self.deauthenticate,
-            "channel_details": self.channel_details,
+            "channel_list": self.channel_list,
             "playlist_contents": self.playlist_contents,
             "playlist_list": self.playlist_list,
             "video_details": self.video_details
@@ -242,20 +242,20 @@ class NetworkThread(Thread):
 
         return "Deauthenticated"
 
-    def channel_details(self, request):
+    def channel_list(self, request):
         """
         Obtain details about the channels that are associated with the
         currently authenticated user.
         """
         log("API: Fetching channel details")
 
-        if "channel_details" in self.cache:
+        if "channel_list" in self.cache:
             if request["refresh"]:
                 log("DBG: Clearing Channel Cache")
-                del self.cache["channel_details"]
+                del self.cache["channel_list"]
             else:
                 log("DBG: Returning cached data")
-                return self.cache["channel_details"]
+                return self.cache["channel_list"]
         else:
             log("DBG: Cache miss on channel data")
 
@@ -281,7 +281,7 @@ class NetworkThread(Thread):
         log("API: Retreived information for {0} channel(s):", len(result))
         log("API: Channels: {0}", str([c['brandingSettings.channel.title'] for c in result]))
         log("API: Channels: Public video count: {0}", str([c['statistics.videoCount'] for c in result]))
-        self.cache["channel_details"] = result
+        self.cache["channel_list"] = result
         log("DBG: Cached channel response")
 
         return result
