@@ -31,19 +31,26 @@ class YoutubeEditorEditVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applic
                       playlist_id=self.channel['contentDetails.relatedPlaylists.uploads'])
 
     def _playlist_contents(self, request, result):
-        select_video(result, lambda video: self.select_video(video),
+        videos = sorted(result, key=lambda k: int(k["statistics.viewCount"]), reverse=True)
+        select_video(videos, lambda video: self.select_video(video),
                      "Edit Video Details")
+
+    def _video_details(self, request, result):
+        video = result[0]
+        sublime.active_window().run_command('youtube_editor_new_window', {
+            'video_id': video["id"],
+            'title': video["snippet.title"],
+            'description': video["snippet.description"],
+            'tags': video.get("snippet.tags", [])
+            })
+
+        sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), video["id"]))
 
     def select_video(self, video):
         if video:
-            sublime.active_window().run_command('youtube_editor_new_window', {
-                'video_id': video["id"],
-                'title': video["snippet.title"],
-                'description': video["snippet.description"],
-                'tags': video.get("snippet.tags", [])
-                })
+            self.request("video_details", video_id=video["id"],
+                         reason="Get full video details for editing")
 
-            sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), video["id"]))
 
     def load_thumbnail(self, window, video_id):
         img_uri = 'https://i.ytimg.com/vi/%s/sddefault.jpg' % video_id
