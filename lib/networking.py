@@ -184,6 +184,9 @@ class NetworkThread(Thread):
             "video_details": self.video_details
         }
 
+    # def __del__(self):
+    #     log("== Destroying network thread")
+
     def _init_cache(self):
         """
         Set up our internal cache object to be empty and ready to track the
@@ -218,8 +221,43 @@ class NetworkThread(Thread):
             "video_details": {}
         })
 
-    # def __del__(self):
-    #     log("== Destroying network thread")
+    def _fetch_video_details(self, video_ids, part, cache_data):
+        """
+        Fetch video details for the video(s) provided, and update the given
+        cache_data with the results. cache_data is a dictionary whose keys are
+        video ids and whose values are the details for those videos. In use
+        any videos submitted for lookup that appear in the cache already will
+        be skipped, and any that are looked up will be added to the cache.
+
+        The provided video_ids can be either a single string video ID or a list
+        of ID's to look up. The given part is used to determine what
+        information gets looked up
+
+        The returned value is a list of video details for each given video
+        ID.
+        """
+        missing_ids = [vid for vid in video_ids if vid not in cache_data]
+
+        log("API: Fetching video details ({0} cached, fetching {1} of {2})",
+            len(video_ids) - len(missing_ids), len(missing_ids), len(video_ids));
+
+        # This request seems to top out at 50 requested items, so chunk the list
+        # so we can batch it, since it doesn't support native paging (since it
+        # is not a traditional list query, one assumes).
+        id_list = [missing_ids[i * 50:(i + 1) * 50] for i in range((len(missing_ids) + 50 - 1) // 50 )]
+
+        for sublist in id_list:
+            response = self.youtube.videos().list(
+                id=sublist,
+                part=part
+                ).execute()
+
+            for v in response["items"]:
+                video = dotty(v)
+                cache_data[v['id']] = video
+
+        return [cache_data[vid] for vid in video_ids]
+
 
     def validate(self, request, required=None, any_of=None):
         """
