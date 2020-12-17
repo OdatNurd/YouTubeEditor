@@ -216,6 +216,13 @@ class NetworkThread(Thread):
             # playlist contents.
             "playlist_contents": {},
 
+            # The information on videos stored in playlists. This object is
+            # keyed on video ID, with the values being the information on that
+            # video. This is only data considered relevant for the purposes of
+            # displaying the playlist (i.e. it is not guaranteed to be full
+            # video details).
+            "playlist_videos": {},
+
             # The information on fetched videos; this object is keys on video
             # ID's, with the value being the details of that particular video.
             "video_details": {}
@@ -450,6 +457,12 @@ class NetworkThread(Thread):
             if request["refresh"]:
                 log("DBG: Clearing Playlist Contents Cache")
                 del self.cache["playlist_contents"][playlist_id]
+
+                # TODO: This clobbers playlist video details for every possible
+                #       video; should it only clobber videos that appear in the
+                #       playlist we're re-fetching instead?
+                log("DBG: Clearing Playlist Video Contents Cache")
+                self.cache["playlist_videos"] = {}
             else:
                 log("DBG: Returning cached playlist data")
                 return self.cache["playlist_contents"][playlist_id]
@@ -463,7 +476,7 @@ class NetworkThread(Thread):
         # id:               the unique item ID (**NOTE** this is NOT video ID!)
         # snippet:          basic video details (title, description, etc)
         # contentDetails:   video id and publish time
-        # status            privacy status
+        # status            privacy status of the video
         list_request = self.youtube.playlistItems().list(
             playlistId=request["playlist_id"],
             part="contentDetails",
@@ -486,28 +499,13 @@ class NetworkThread(Thread):
 
         log("API: Playlist contains {0} items", len(results))
 
-        log("API: Fetching video details for playlist contents")
-
-        # This request gets angry if you give is a list of more than 50
-        # items, and it also gets angry if you try to page it (as above);
-        # this seems to be undocumented, but it looks like we need to do
-        # the batching ourselves.
+        # Get the list of all videos contained in the playlist, and fetch down
+        # the data, updating the cache as we do. This is smart enough to not
+        # re-request information it has previously retreived.
         ids = [v['contentDetails.videoId'] for v in results]
-        id_list = [ids[i * 50:(i + 1) * 50] for i in range((len(ids) + 50 - 1) // 50 )]
-        results = []
+        results = self._fetch_video_details(ids, 'id,snippet,status,statistics', self.cache["playlist_videos"])
 
-        # TODO: The list of things we ask for here could perhaps be
-        # constrained; for list purposes we might not need all details,
-        # only things we want to display in the quick panel.
-        for sublist in id_list:
-            response = self.youtube.videos().list(
-                id=sublist,
-                part='id,snippet,status,statistics,contentDetails'
-                ).execute()
-
-            for video in response["items"]:
-                results.append(dotty(video))
-
+        # Cache the results for a future call
         self.cache["playlist_contents"][playlist_id] = results
         log("DBG: Cached playlist response")
 
