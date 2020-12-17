@@ -76,7 +76,8 @@ class NetworkManager():
         """
         if success:
             if request.name not in ('channel_list', 'channel_details',
-                                    'playlist_list', 'playlist_contents'):
+                                    'playlist_list', 'playlist_contents',
+                                    "video_details"):
                 self.cache[request] = result
         elif request in self.cache:
             del self.cache[request]

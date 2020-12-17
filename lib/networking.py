@@ -514,32 +514,35 @@ class NetworkThread(Thread):
 
     def video_details(self, request):
         """
-        Given the ID of a video for a user, fetch the details for that video
-        for editing purposes.
+        Given one or more video ID's for a video, fetch the details for those
+        videos. The results of this are cached separately from the cache used
+        for playlist video details, since each fetches a different portion of
+        the data available.
+
+        This can handle one or more video lookups, so the result is an array
+        of video information as a result.
         """
         self.validate(request, {"video_id"})
-        log("API: Fetching video details for: {0}", request["video_id"])
 
-        # Request breakdown is as follows. Note that snippet and contentDetails
-        # have overlap between them, but each has information that the other
-        # does not.
-        #
-        # snippet:          basic video details (title, description, etc)
-        # contentDetails:   content detais (publish time, duration, etc)
-        # status:           video status (uploaded, processed, private, etc)
-        # statistics:       statistics (views, likes, dislikes, etc)
-        part = request["part"] or 'snippet,contentDetails,status,statistics'
-        response = self.youtube.videos().list(
-            id=request["video_id"],
-            part=part
-            ).execute()
+        # Get video ID's and ensure that it's a list.
+        video_ids = request["video_id"]
+        if not isinstance(video_ids, list):
+            video_ids = [video_ids]
 
-        for item in response['items']:
-            result = dotty(item)
-            log("API: Got information for: {0}", result['snippet.title'])
-            return result
+        log("API: Fetching video details for: {0}", video_ids)
 
-        return None
+        # If we are asked to refresh, we need to delete from the cache all
+        # video IDs we were asked to request that were previously requested.
+        # All other caching happens below, in the request and subsequent
+        # handling.
+        if request["refresh"]:
+            for video in video_ids:
+                if video in self.cache["video_details"]:
+                    del self.cache["video_details"][videp]
+
+        # Fetch the details for all requested videos; this will use the cache
+        # to only return what's needed.
+        return self._fetch_video_details(video_ids, 'snippet,contentDetails,status,statistics', self.cache["video_details"])
 
     def handle_request(self, request_obj):
         """
