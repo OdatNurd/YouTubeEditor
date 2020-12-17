@@ -196,7 +196,7 @@ class NetworkThread(Thread):
         self.cache = dotty({
             # The information on fetched channel information; this is a list of
             # all channels associated with the currently authenticated user.
-            # "channel_list": []
+            "channel_list": [],
 
             # The information on fetched channel details; this object is keyed
             # on channel ID's, with the value being the details for that
@@ -209,7 +209,7 @@ class NetworkThread(Thread):
             "playlist_list": {},
 
             # The information on the contents of fetched playlists; this object
-            # is keys on playlist ID's, with the value being a list of the
+            # is keyed on playlist ID's, with the value being a list of the
             # playlist contents.
             "playlist_contents": {},
 
@@ -282,7 +282,7 @@ class NetworkThread(Thread):
         if channel_id in self.cache['channel_details']:
             if request["refresh"]:
                 log("DBG: Clearing Channel Cache (in ID)")
-                del self.cache["channel_list"]
+                self.cache["channel_list"] = []
             else:
                 log("DBG: Returning cached data (in ID)")
                 return self.cache["channel_details"][channel_id]
@@ -302,10 +302,10 @@ class NetworkThread(Thread):
         """
         log("API: Fetching channel details")
 
-        if "channel_list" in self.cache:
+        if "channel_list" in self.cache and self.cache["channel_list"]:
             if request["refresh"]:
                 log("DBG: Clearing Channel Cache")
-                del self.cache["channel_list"]
+                self.cache["channel_list"] = []
             else:
                 log("DBG: Returning cached data")
                 return self.cache["channel_list"]
@@ -411,7 +411,7 @@ class NetworkThread(Thread):
         if playlist_id in self.cache['playlist_contents']:
             if request["refresh"]:
                 log("DBG: Clearing Playlist Contents Cache")
-                del self.cache["playlist_contents"]
+                del self.cache["playlist_contents"][playlist_id]
             else:
                 log("DBG: Returning cached playlist data")
                 return self.cache["playlist_contents"][playlist_id]
