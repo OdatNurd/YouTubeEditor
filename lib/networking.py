@@ -10,6 +10,7 @@ import queue
 
 import os
 import json
+import traceback
 
 # A compatible version of this is available in hashlib in more recent builds of
 # Python, but it takes keyword only arguments. You can swap to that one by
@@ -565,6 +566,9 @@ class NetworkThread(Thread):
 
             except Exception as err:
                 result = dotty({"error": {"code": -1, "message": str(err) } })
+
+                # Display the trace to the console for diagnostic purposes.
+                print(traceback.format_exc())
 
         sublime.set_timeout(lambda: callback(success, result))
         self.requests.task_done()
