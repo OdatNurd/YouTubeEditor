@@ -64,6 +64,7 @@ def setup_log_panel(window, src_window=None):
     view.settings().set("gutter", False)
     view.settings().set("rulers", [])
     view.settings().set("word_wrap", False)
+    view.settings().set("context_menu", "YouTubeLog.sublime-menu")
 
     if src_window:
         src_view = src_window.find_output_panel("youtubeeditor")
