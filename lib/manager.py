@@ -24,7 +24,6 @@ class NetworkManager():
         self.request_queue = queue.Queue()
         self.net_thread = NetworkThread(self.thr_event, self.request_queue)
         self.authorized = False
-        self.cache = {}
 
     def startup(self):
         """
@@ -74,20 +73,10 @@ class NetworkManager():
         not from within itself; this is the barrier where the requested data
         shifts between threads.
         """
-        if success:
-            if request.name not in ('channel_list', 'channel_details',
-                                    'playlist_list', 'playlist_contents',
-                                    "video_details"):
-                self.cache[request] = result
-        elif request in self.cache:
-            del self.cache[request]
-
-        # Handle updates of internal state.
         if request.name == "authorize":
             self.authorized = success
         elif request.name == "deauthorize":
             self.authorized = False
-            self.cache = dict()
 
         user_callback(request, success, result)
 
@@ -101,9 +90,6 @@ class NetworkManager():
         Internally this class will cache the result of some requests; in order
         to force a re-request, set refresh to True.
         """
-        if request in self.cache and not refresh:
-            return callback(request, True, self.cache[request])
-
         if not self.net_thread.is_alive():
             self.startup()
 
