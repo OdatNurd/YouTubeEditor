@@ -9,7 +9,7 @@ from .logging import log, setup_log_panel, copy_video_link
 from .request import Request
 from .manager import NetworkManager
 from .networking import stored_credentials_path
-from .dotty import dotty, Dotty
+from . import dotty
 
 __all__ = [
     "get_video_timecode",
@@ -28,6 +28,5 @@ __all__ = [
     "NetworkManager",
     "stored_credentials_path",
     "dotty",
-    "Dotty",
     "BusySpinner"
 ]

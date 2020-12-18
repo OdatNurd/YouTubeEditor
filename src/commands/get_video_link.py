@@ -59,7 +59,7 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
         # Make a fake playlist from a template; populate it with the public
         # video count. The count will be adjusted later if/when the user
         # browses into the Uploads playlist.
-        self.uploads_playlist = dotty(_upload_template)
+        self.uploads_playlist = dotty.dotty(_upload_template)
         self.uploads_playlist['contentDetails.itemCount'] = self.channel['statistics.videoCount']
         self.uploads_playlist['id'] = self.channel['contentDetails.relatedPlaylists.uploads']
 

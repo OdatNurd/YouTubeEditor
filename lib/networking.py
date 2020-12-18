@@ -2,7 +2,7 @@ import sublime
 
 from .logging import log
 from .request import Request
-from .dotty import dotty
+from . import dotty
 from .utils import yte_setting, BusySpinner
 
 from threading import Thread
@@ -48,6 +48,21 @@ _PBKDF_Key = scrypt("password".encode(), _PBKDF_Salt, 1024, 1, 1, 32)
 ###----------------------------------------------------------------------------
 
 
+class DottyEncoder(json.JSONEncoder):
+    """
+    A simple custom JSON Encoder that knows how to encode a dotty dictionary
+    by returning the original wrapped dictionary.
+    """
+    def default(self, o):
+        if isinstance(o, dotty.Dotty):
+            return o.to_dict()
+
+        return json.JSONEncoder.default(self, o)
+
+
+###----------------------------------------------------------------------------
+
+
 def app_client_config():
     """
     Obtain the necessary information to conduct OAuth interactions with the
@@ -77,6 +92,51 @@ def stored_credentials_path():
     stored_credentials_path.path = os.path.normpath(path)
 
     return stored_credentials_path.path
+
+
+def stored_cache_path():
+    """
+    Obtain the data request cache file path, which is stored in the Cache
+    folder of the User's configuration information.
+    """
+    if hasattr(stored_cache_path, "path"):
+        return stored_cache_path.path
+
+    path = os.path.join(sublime.cache_path(), "YouTubeEditorCacheData.json")
+    stored_cache_path.path = os.path.normpath(path)
+
+    return stored_cache_path.path
+
+
+def load_cached_request_data():
+    """
+    Decrypt and return back a dict that represents saved cache data from a
+    previous run. This will return None if there is currently no cached data
+    present. This will currently raise an exception if the file is broken (so
+    don't break it).
+    """
+    try:
+        # Decrypt the data with the key and convert it back to JSON.
+        with open(stored_cache_path(), "rb") as handle:
+            aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
+            cache_data = aes.decrypt(handle.read()).decode("utf-8")
+
+            return json.loads(cache_data, object_hook=dotty.dotty)
+
+    except FileNotFoundError:
+        return None
+
+
+def save_cached_request_data(cache_data):
+    """
+    Given a cache data object, write it into an encrypted file for later
+    use in another session.
+    """
+    # Encrypt the cache data using our key and write it out as bytes.
+    aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
+    cache_data = aes.encrypt(json.dumps(cache_data, cls=DottyEncoder, indent=4))
+    with open(stored_cache_path(), "wb") as handle:
+        handle.write(cache_data)
 
 
 def cache_credentials(credentials):
@@ -198,7 +258,7 @@ class NetworkThread(Thread):
         # during this session; requests that ask for data already in the cache
         # will retreive that data immediately with no further requests being
         # made unless they request a refresh.
-        self.cache = dotty({
+        self.cache = load_cached_request_data() or dotty.dotty({
             # The information on fetched channel information; this is a list of
             # all channels associated with the currently authenticated user.
             "channel_list": [],
@@ -206,28 +266,28 @@ class NetworkThread(Thread):
             # The information on fetched channel details; this object is keyed
             # on channel ID's, with the value being the details for that
             # channel.
-            "channel_details": {},
+            "channel_details": dotty.dotty({}),
 
             # The information on fetched playlists; this object is keyed on
             # channel ID's, with the value being a list of all playlists that
             # appear on that channel
-            "playlist_list": {},
+            "playlist_list": dotty.dotty({}),
 
             # The information on the contents of fetched playlists; this object
             # is keyed on playlist ID's, with the value being a list of the
             # playlist contents.
-            "playlist_contents": {},
+            "playlist_contents": dotty.dotty({}),
 
             # The information on videos stored in playlists. This object is
             # keyed on video ID, with the values being the information on that
             # video. This is only data considered relevant for the purposes of
             # displaying the playlist (i.e. it is not guaranteed to be full
             # video details).
-            "playlist_videos": {},
+            "playlist_videos": dotty.dotty({}),
 
             # The information on fetched videos; this object is keys on video
             # ID's, with the value being the details of that particular video.
-            "video_details": {}
+            "video_details": dotty.dotty({})
         })
 
     def _fetch_video_details(self, video_ids, part, cache_data):
@@ -262,7 +322,7 @@ class NetworkThread(Thread):
                 ).execute()
 
             for v in response["items"]:
-                video = dotty(v)
+                video = dotty.dotty(v)
                 cache_data[v['id']] = video
 
         return [cache_data[vid] for vid in video_ids]
@@ -324,6 +384,11 @@ class NetworkThread(Thread):
         again.
         """
         log("THR: Requesting Cache Flush")
+        try:
+            os.remove(stored_cache_path())
+        except:
+            pass
+
         self._init_cache()
         return "Flushed"
 
@@ -387,7 +452,7 @@ class NetworkThread(Thread):
         if "items" not in response or not response["items"]:
             raise KeyError("No channels available for the current user")
 
-        result = [dotty(channel) for channel in response["items"]]
+        result = [dotty.dotty(channel) for channel in response["items"]]
         log("API: Retreived information for {0} channel(s):", len(result))
         log("API: Channels: {0}", str([c['brandingSettings.channel.title'] for c in result]))
         log("API: Channels: Public video count: {0}", str([c['statistics.videoCount'] for c in result]))
@@ -397,6 +462,7 @@ class NetworkThread(Thread):
             self.cache["channel_details"][channel["id"]] = channel
 
         log("DBG: Cached channel response")
+        save_cached_request_data(self.cache)
 
         return result
 
@@ -441,7 +507,7 @@ class NetworkThread(Thread):
 
             # Grab information about each playlist.
             for playlist in response['items']:
-                results.append(dotty(playlist))
+                results.append(dotty.dotty(playlist))
 
             list_request = self.youtube.playlistItems().list_next(
                 list_request, response)
@@ -451,6 +517,7 @@ class NetworkThread(Thread):
         self.cache["playlist_list"][channel_id] = results
 
         log("DBG: Cached playlist response")
+        save_cached_request_data(self.cache)
 
         return results
 
@@ -504,7 +571,7 @@ class NetworkThread(Thread):
 
             # Grab information about each video.
             for playlist_item in response['items']:
-                results.append(dotty(playlist_item))
+                results.append(dotty.dotty(playlist_item))
 
             list_request = self.youtube.playlistItems().list_next(
                 list_request, response)
@@ -519,7 +586,9 @@ class NetworkThread(Thread):
 
         # Cache the results for a future call
         self.cache["playlist_contents"][playlist_id] = results
+
         log("DBG: Cached playlist response")
+        save_cached_request_data(self.cache)
 
         return results
 
@@ -553,7 +622,10 @@ class NetworkThread(Thread):
 
         # Fetch the details for all requested videos; this will use the cache
         # to only return what's needed.
-        return self._fetch_video_details(video_ids, 'snippet,contentDetails,status,statistics', self.cache["video_details"])
+        result = self._fetch_video_details(video_ids, 'snippet,contentDetails,status,statistics', self.cache["video_details"])
+        save_cached_request_data(self.cache)
+
+        return result
 
     def handle_request(self, request_obj):
         """
@@ -576,10 +648,10 @@ class NetworkThread(Thread):
                 success = True
 
             except HttpError as err:
-                result = dotty(json.loads(err.content.decode('utf-8')))
+                result = dotty.dotty(json.loads(err.content.decode('utf-8')))
 
             except Exception as err:
-                result = dotty({"error": {"code": -1, "message": str(err) } })
+                result = dotty.dotty({"error": {"code": -1, "message": str(err) } })
 
                 # Display the trace to the console for diagnostic purposes.
                 print(traceback.format_exc())
