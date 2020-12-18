@@ -1,4 +1,7 @@
 [
+    { "caption": "-", "id": "youtubeeditor" },
+    { "caption": "Clear Log", "command": "youtube_editor_clear_log" },
+    { "caption": "-", "id": "url" },
     { "command": "open_context_url" },
     { "caption": "-", "id": "clipboard" },
     { "command": "copy" },

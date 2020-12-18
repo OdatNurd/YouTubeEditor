@@ -21,6 +21,7 @@ __all__ = [
     "YoutubeEditorGetCamtasiaContentsCommand",
     "YoutubeEditorCopyVideoLinkCommand",
     "YoutubeEditorViewVideoLinkCommand",
+    "YoutubeEditorClearLogCommand",
 
     # Events
     "YoutubeTitleEventListener",
