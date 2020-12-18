@@ -178,6 +178,7 @@ class NetworkThread(Thread):
         self.request_map = {
             "authorize": self.authenticate,
             "deauthorize": self.deauthenticate,
+            "flush_cache": self.flush_cache,
             "channel_details": self.channel_details,
             "channel_list": self.channel_list,
             "playlist_contents": self.playlist_contents,
@@ -315,6 +316,16 @@ class NetworkThread(Thread):
             pass
 
         return "Deauthenticated"
+
+    def flush_cache(self, request):
+        """
+        Flush away any cached information from previously made requests. Once
+        this is done, any requests made will have to perform a full request
+        again.
+        """
+        log("THR: Requesting Cache Flush")
+        self._init_cache()
+        return "Flushed"
 
     def channel_details(self, request):
         """

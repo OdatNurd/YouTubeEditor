@@ -22,6 +22,7 @@ __all__ = [
     "YoutubeEditorCopyVideoLinkCommand",
     "YoutubeEditorViewVideoLinkCommand",
     "YoutubeEditorClearLogCommand",
+    "YoutubeEditorFlushCacheCommand",
 
     # Events
     "YoutubeTitleEventListener",

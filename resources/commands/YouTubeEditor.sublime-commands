@@ -16,6 +16,8 @@
 
     { "caption": "YouTubeEditor: Edit Video Details", "command": "youtube_editor_edit_video_details" },
 
+    { "caption": "YouTubeEditor: Flush Cached Data", "command": "youtube_editor_flush_cache" },
+
     { "caption": "YouTubeEditor: New Window", "command": "youtube_editor_new_window" },
 
     { "caption": "YouTubeEditor: Insert Camtasia Video TOC", "command": "youtube_editor_get_camtasia_contents",

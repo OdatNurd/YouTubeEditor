@@ -3,7 +3,7 @@ from ...editor import reload
 reload("src.commands", ["authorize", "logout", "get_video_link",
                         "edit_video_details", "new_window", "navigate",
                         "get_camtasia_toc", "copy_video_link",
-                        "view_video_link", "clear_log"])
+                        "view_video_link", "clear_log", "flush_cache"])
 
 from .authorize import YoutubeEditorAuthorizeCommand
 from .logout import YoutubeEditorLogoutCommand
@@ -15,6 +15,7 @@ from .get_camtasia_toc import YoutubeEditorGetCamtasiaContentsCommand
 from .copy_video_link import YoutubeEditorCopyVideoLinkCommand
 from .view_video_link import YoutubeEditorViewVideoLinkCommand
 from .clear_log import YoutubeEditorClearLogCommand
+from .flush_cache import YoutubeEditorFlushCacheCommand
 
 __all__ = [
     # Authorize and Deauthorize the plugin for YouTube
@@ -41,5 +42,8 @@ __all__ = [
     "YoutubeEditorViewVideoLinkCommand",
 
     # Clear the contents of the log panel
-    "YoutubeEditorClearLogCommand"
+    "YoutubeEditorClearLogCommand",
+
+    # Flush the network request cache
+    "YoutubeEditorFlushCacheCommand"
 ]
