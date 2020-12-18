@@ -4,7 +4,7 @@ import sublime_plugin
 from sublime import QuickPanelItem
 
 from ..core import YoutubeRequest
-from ...lib import dotty, make_video_link, select_video
+from ...lib import log, dotty, make_video_link, copy_video_link, select_video
 from ...lib import select_playlist, select_tag, select_timecode
 
 
@@ -138,9 +138,8 @@ class YoutubeEditorGetVideoLinkCommand(YoutubeRequest, sublime_plugin.Applicatio
                                         show_back=self.use_playlists,
                                         placeholder="Copy video link")
 
-            link = make_video_link(video['id'], timecode)
-            sublime.set_clipboard(link)
-            sublime.status_message('URL Copied: %s' % link)
+            copy_video_link(make_video_link(video['id'], timecode),
+                            video['snippet.title'])
 
 
 ###----------------------------------------------------------------------------

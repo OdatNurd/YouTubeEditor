@@ -5,7 +5,7 @@ reload("lib", ["logging", "utils", "request", "networking", "manager", "dotty"])
 from .utils import select_playlist, select_tag, select_video, select_timecode
 from .utils import yte_syntax, yte_setting, get_video_timecode, make_video_link
 from .utils import get_window_link, BusySpinner
-from .logging import log, setup_log_panel
+from .logging import log, setup_log_panel, copy_video_link
 from .request import Request
 from .manager import NetworkManager
 from .networking import stored_credentials_path
@@ -22,6 +22,7 @@ __all__ = [
     "yte_syntax",
     "yte_setting",
     "log",
+    "copy_video_link",
     "setup_log_panel",
     "Request",
     "NetworkManager",

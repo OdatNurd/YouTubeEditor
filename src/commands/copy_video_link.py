@@ -3,7 +3,7 @@ import sublime_plugin
 
 import webbrowser
 
-from ...lib import get_video_timecode, get_window_link
+from ...lib import get_video_timecode, get_window_link, copy_video_link
 
 
 ## ----------------------------------------------------------------------------
@@ -17,8 +17,11 @@ class YoutubeEditorCopyVideoLinkCommand(sublime_plugin.TextCommand):
     """
     def run(self, edit, event=None):
         url = get_window_link(self.view, event=event)
-        sublime.set_clipboard(url)
-        sublime.status_message('URL Copied: %s' % url)
+
+        title_view = self.view.window().views_in_group(0)[0]
+        title = title_view.substr(sublime.Region(0, len(title_view)))
+
+        copy_video_link(url, title)
 
     def description(self, copy=True, open_in_browser=False, event=None):
         if get_video_timecode(self.view, event) != None:

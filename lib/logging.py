@@ -53,6 +53,25 @@ def log(msg, *args, dialog=False, error=False, panel=True, display=False, **kwar
 ###----------------------------------------------------------------------------
 
 
+def copy_video_link(link_url, title=None):
+    """
+    Given a link to a video (possibly at some timecode), copy it to the
+    clipboard and also log it to the output panel; a context command in the log
+    allows you to open links in your browser.
+
+    If a title is provided, it will be included in the log output.
+
+    This is here and not in utils to stop a circular dependency problem.
+    """
+    sublime.set_clipboard(link_url)
+    sublime.status_message('URL Copied: %s' % link_url)
+    log("PKG: Copied link to clipboard: {0}{1}",
+        '' if title is None else "'%s': " % title, link_url)
+
+
+###----------------------------------------------------------------------------
+
+
 def setup_log_panel(window, src_window=None):
     """
     Set up an output panel for logging into the provided window. When a source
