@@ -115,16 +115,17 @@ def load_cached_request_data():
     present. This will currently raise an exception if the file is broken (so
     don't break it).
     """
-    try:
-        # Decrypt the data with the key and convert it back to JSON.
-        with open(stored_cache_path(), "rb") as handle:
-            aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
-            cache_data = aes.decrypt(handle.read()).decode("utf-8")
+    with BusySpinner('Loading data cache', time=True):
+        try:
+            # Decrypt the data with the key and convert it back to JSON.
+            with open(stored_cache_path(), "rb") as handle:
+                aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
+                cache_data = aes.decrypt(handle.read()).decode("utf-8")
 
-            return json.loads(cache_data, object_hook=dotty.dotty)
+                return json.loads(cache_data, object_hook=dotty.dotty)
 
-    except FileNotFoundError:
-        return None
+        except FileNotFoundError:
+            return None
 
 
 def save_cached_request_data(cache_data):
@@ -133,10 +134,11 @@ def save_cached_request_data(cache_data):
     use in another session.
     """
     # Encrypt the cache data using our key and write it out as bytes.
-    aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
-    cache_data = aes.encrypt(json.dumps(cache_data, cls=DottyEncoder))
-    with open(stored_cache_path(), "wb") as handle:
-        handle.write(cache_data)
+    with BusySpinner('Updating data cache', time=True):
+        aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
+        cache_data = aes.encrypt(json.dumps(cache_data, cls=DottyEncoder))
+        with open(stored_cache_path(), "wb") as handle:
+            handle.write(cache_data)
 
 
 def cache_credentials(credentials):
