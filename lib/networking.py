@@ -115,7 +115,7 @@ def load_cached_request_data():
     present. This will currently raise an exception if the file is broken (so
     don't break it).
     """
-    with BusySpinner('Loading data cache', time=True):
+    with BusySpinner('Loading YouTubeEditor cache data', time=True):
         try:
             # Decrypt the data with the key and convert it back to JSON.
             with open(stored_cache_path(), "rb") as handle:
@@ -375,8 +375,11 @@ class NetworkThread(Thread):
         log("THR: Removing stored login credentials")
         try:
             self.youtube = None
-            self._init_cache()
+
             os.remove(stored_credentials_path())
+            os.remove(stored_cache_path())
+            self._init_cache()
+
         except:
             pass
 
