@@ -230,8 +230,11 @@ class NetworkThread(Thread):
         self.requests = queue
         self.youtube = None
 
-        # Set up the cache data structure
-        self._init_cache()
+        # Set up the cache data structure when the thread launches, since the
+        # load of the cached data can actually take a fair bit of time and we
+        # don't want to hang the load of the plugin by doing it in the main
+        # thread.
+        self.cache = None
 
         # The requests that we know how to service, and what method invokes
         # them.
@@ -670,6 +673,9 @@ class NetworkThread(Thread):
         are no connections.
         """
         # log("== Entering network loop")
+
+        # Set up our initial cache now, which may take some time
+        self._init_cache()
         while not self.event.is_set():
             try:
                 request = self.requests.get(block=True, timeout=0.25)
