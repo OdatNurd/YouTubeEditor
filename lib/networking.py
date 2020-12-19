@@ -134,7 +134,7 @@ def save_cached_request_data(cache_data):
     """
     # Encrypt the cache data using our key and write it out as bytes.
     aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
-    cache_data = aes.encrypt(json.dumps(cache_data, cls=DottyEncoder, indent=4))
+    cache_data = aes.encrypt(json.dumps(cache_data, cls=DottyEncoder))
     with open(stored_cache_path(), "wb") as handle:
         handle.write(cache_data)
 
@@ -152,7 +152,7 @@ def cache_credentials(credentials):
 
     # Encrypt the cache data using our key and write it out as bytes.
     aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
-    cache_data = aes.encrypt(json.dumps(cache_data, indent=4))
+    cache_data = aes.encrypt(json.dumps(cache_data))
 
     with open(stored_credentials_path(), "wb") as handle:
         handle.write(cache_data)
