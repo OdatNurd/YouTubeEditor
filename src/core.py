@@ -42,8 +42,6 @@ def loaded():
 
     log("PKG: YouTubeEditor loaded")
 
-    netManager = NetworkManager()
-
     yte_setting.obj = sublime.load_settings("YouTubeEditor.sublime-settings")
     yte_setting.default = {
         "camtasia_folder": os.path.expanduser("~"),
@@ -54,6 +52,8 @@ def loaded():
         "auth_uri": "",
         "token_uri": ""
     }
+
+    netManager = NetworkManager()
 
 
 def unloaded():
