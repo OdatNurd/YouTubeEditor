@@ -6,6 +6,8 @@ from uuid import uuid4
 
 import re
 
+from timeit import default_timer as timer
+
 
 ###----------------------------------------------------------------------------
 
@@ -305,12 +307,13 @@ class BusySpinner():
     """
     width = 5
 
-    def __init__(self, prefix, window=None):
+    def __init__(self, prefix, window=None, time=False):
         self.window = window or sublime.active_window()
         self.prefix = prefix
         self.key = "__%s" % uuid4()
         self.tick_view = None
         self.running = False
+        self.time = time
 
     def __enter__(self):
         self.start()
@@ -323,10 +326,18 @@ class BusySpinner():
             raise ValueError("Cannot start spinner; already started")
 
         self.running = True
+        if self.time:
+            self.start_time = timer()
         sublime.set_timeout(lambda: self.update(0), 100)
 
     def stop(self):
         self.running = False
+
+        if self.time:
+            from . import log
+
+            stop = timer()
+            log("DBG: {0} took {1:.3f}s", self.prefix, stop - self.start_time)
 
     def update(self, tick):
         current_view = self.window.active_view()
