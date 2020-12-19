@@ -649,6 +649,15 @@ class NetworkThread(Thread):
                 if handler is None:
                     raise ValueError("Unknown request '%s'" % request.name)
 
+                # Initialize the cache if it hasn't been done yet.
+                if self.cache == None:
+                    # These requests don't need the data cache and might
+                    # actually invalidate it, so don't waste time loading it
+                    # it in if we're just going to clobber it away.
+                    if request.name not in ('authorize', 'deauthorize', 'flush_cache'):
+                        log("THR: Initializing the data cache")
+                        self._init_cache()
+
                 result = handler(request)
                 success = True
 
@@ -676,8 +685,6 @@ class NetworkThread(Thread):
         """
         # log("== Entering network loop")
 
-        # Set up our initial cache now, which may take some time
-        self._init_cache()
         while not self.event.is_set():
             try:
                 request = self.requests.get(block=True, timeout=0.25)
