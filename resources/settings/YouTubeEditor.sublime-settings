@@ -20,6 +20,23 @@
     // last selected folder is used instead (inside of the same session).
     // "camtasia_folder": "",
 
+    // When this is enabled, any data is is requested from the API is cached to
+    // disk so that it can be re-used when the package reloads (for example,
+    // after a restart of Sublime). When this is false, no downloaded
+    // information is written to disk, so each run will need to re-request the
+    // data.
+    "cache_downloaded_data": true,
+
+    // When this is true, cached data is encrypted before it is written to disk
+    // to keep it safe. This has no effect if cache_downloaded_data is false.
+    //
+    // Currently, the package uses a pure Python version of the encryption code
+    // which can be quite slow; thus this is disabled by default.
+    //
+    // NOTE: When you change this setting, you must flush the cache and restart
+    //       Sublime or errors will result.
+    "encrypt_cache": false,
+
     // In order to use the package, you *MUST* override the following settings
     // in your user specific package settings. This requires that you set up an
     // application with the Installed OAuth2 flow. The result is google providing

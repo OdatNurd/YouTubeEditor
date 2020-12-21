@@ -47,6 +47,9 @@ def loaded():
         "camtasia_folder": os.path.expanduser("~"),
         "auto_show_panel": 2,
 
+        "cache_downloaded_data": True,
+        "encrypt_cache": False,
+
         "client_id": "",
         "client_secret": "",
         "auth_uri": "",
