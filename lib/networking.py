@@ -115,12 +115,20 @@ def load_cached_request_data():
     present. This will currently raise an exception if the file is broken (so
     don't break it).
     """
+    if not yte_setting('cache_downloaded_data'):
+        return None
+
     with BusySpinner('Loading YouTubeEditor cache data', time=True):
         try:
             # Decrypt the data with the key and convert it back to JSON.
             with open(stored_cache_path(), "rb") as handle:
-                aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
-                cache_data = aes.decrypt(handle.read()).decode("utf-8")
+                raw_data = handle.read()
+
+                if yte_setting('encrypt_cache'):
+                    aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
+                    cache_data = aes.decrypt(raw_data).decode("utf-8")
+                else:
+                    cache_data = raw_data.decode("utf-8")
 
                 return json.loads(cache_data, object_hook=dotty.dotty)
 
@@ -133,10 +141,19 @@ def save_cached_request_data(cache_data):
     Given a cache data object, write it into an encrypted file for later
     use in another session.
     """
+    if not yte_setting('cache_downloaded_data'):
+        return
+
     # Encrypt the cache data using our key and write it out as bytes.
     with BusySpinner('Updating data cache', time=True):
-        aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
-        cache_data = aes.encrypt(json.dumps(cache_data, cls=DottyEncoder))
+        json_data = json.dumps(cache_data, cls=DottyEncoder)
+
+        if yte_setting('encrypt_cache'):
+            aes = pyaes.AESModeOfOperationCTR(_PBKDF_Key)
+            cache_data = aes.encrypt(json_data)
+        else:
+            cache_data = json_data.encode("utf-8")
+
         with open(stored_cache_path(), "wb") as handle:
             handle.write(cache_data)
 
