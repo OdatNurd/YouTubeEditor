@@ -14,7 +14,13 @@
       }
     },
 
-    { "caption": "YouTubeEditor: Edit Video Details", "command": "youtube_editor_edit_video_details" },
+    { "caption": "YouTubeEditor: Edit Video Details", "command": "youtube_editor_edit_video_details",
+      "args": {
+        "by_playlists": true,
+        "by_tags": false,
+      }
+
+     },
 
     { "caption": "YouTubeEditor: Flush Cached Data", "command": "youtube_editor_flush_cache" },
 

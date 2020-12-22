@@ -4,36 +4,30 @@ import sublime_plugin
 import base64
 import requests
 
-from ..core import YoutubeRequest
+from ..core import YouTubeVideoSelect
 from ...lib import select_video
 
 
 ###----------------------------------------------------------------------------
 
 
-class YoutubeEditorEditVideoDetailsCommand(YoutubeRequest, sublime_plugin.ApplicationCommand):
+class YoutubeEditorEditVideoDetailsCommand(YouTubeVideoSelect, sublime_plugin.ApplicationCommand):
     """
-    Generate a list of all videos for the user's YouTube channel and display
-    them in a quick panel. Choosing a video from the list will open a new
-    editor window displaying the details for that video for viewing and future
-    editing.
+    Prompt the user to select a video, and then display the details of that
+    video in a window for further editing.
 
-    This command uses previously cached credentials if there are any, and
-    requests the user to log in first if not.
+    The arguments by_tags and by_playlists control how the browse works; if
+    provided, each one adds an extra layer of lookup to help drill down and
+    find the desired video.
     """
-    def _authorized(self, request, result):
-        self.request("channel_list", reason="Get Channel Info")
+    playlist_placeholder = "Edit Details: Select a playlist"
+    tag_placeholder = "Edit Details: Browse by tag"
+    video_placeholder = "Edit Details: Select video"
+    video_tag_placeholder = "Edit Details: Select video in tag '{tag}'"
 
-    def _channel_list(self, request, result):
-        self.channel = result[0]
-        self.request("playlist_contents",
-                      reason="Get Uploaded Videos",
-                      playlist_id=self.channel['contentDetails.relatedPlaylists.uploads'])
-
-    def _playlist_contents(self, request, result):
-        videos = sorted(result, key=lambda k: int(k["statistics.viewCount"]), reverse=True)
-        select_video(videos, lambda video: self.select_video(video),
-                     "Edit Video Details")
+    def picked_video(self, video, tag, tag_list):
+        self.request("video_details", video_id=video["id"],
+                     reason="Get full video details for editing")
 
     def _video_details(self, request, result):
         video = result[0]
@@ -45,12 +39,6 @@ class YoutubeEditorEditVideoDetailsCommand(YoutubeRequest, sublime_plugin.Applic
             })
 
         sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), video["id"]))
-
-    def select_video(self, video):
-        if video:
-            self.request("video_details", video_id=video["id"],
-                         reason="Get full video details for editing")
-
 
     def load_thumbnail(self, window, video_id):
         img_uri = 'https://i.ytimg.com/vi/%s/sddefault.jpg' % video_id
