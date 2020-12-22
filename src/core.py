@@ -196,6 +196,23 @@ class YouTubeVideoSelect(YoutubeRequest):
         - Prompt for a timecode in the video (if any)
 
     """
+
+    # These values control what the placeholder text in the various quick
+    # panels will be for each of the given operations. The default value of
+    # None defers the placeholder to the utility functions in the utils.py
+    # file.
+    #
+    # video_tag_placeholder takes an optional format of {tag} to specify the
+    # tag that was chosen to get to this video list.
+    #
+    # timecode_placeholder takes an optional format of {title} to specify the
+    # title of the video the user is selecting a timecode from.
+    playlist_placeholder = None
+    tag_placeholder = None
+    video_placeholder = None
+    video_tag_placeholder = None
+    timecode_placeholder = None
+
     def _authorized(self, request, result):
         self.use_tags = self.run_args.get("by_tags", False)
         self.use_playlists = self.run_args.get("by_playlists", False)
@@ -221,11 +238,13 @@ class YouTubeVideoSelect(YoutubeRequest):
         self.playlists = sorted(result, key=lambda k: k["snippet.title"])
         self.playlists.insert(0, self.uploads_playlist)
 
-        select_playlist(self.playlists, self.pick_playlist)
+        select_playlist(self.playlists, self.pick_playlist,
+                        placeholder=self.playlist_placeholder)
 
     def _playlist_contents(self, request, result):
         if self.use_tags:
-            select_tag(result, self.pick_tag, show_back=self.use_playlists, placeholder="Copy video link from tag")
+            select_tag(result, self.pick_tag, show_back=self.use_playlists,
+                       placeholder=self.tag_placeholder)
         else:
             # If this is the uploads playlist, update the video count to
             # include non-public videos.
@@ -238,7 +257,7 @@ class YouTubeVideoSelect(YoutubeRequest):
             videos = sorted(result, key=lambda k: int(k["statistics.viewCount"]), reverse=True)
             select_video(videos, lambda vid: self.select_video(vid, None, videos),
                          show_back=self.use_playlists,
-                         placeholder="Copy video link")
+                         placeholder=self.video_placeholder)
 
     def pick_playlist(self, playlist):
         if playlist != None:
@@ -250,11 +269,15 @@ class YouTubeVideoSelect(YoutubeRequest):
         if tag is not None:
             if tag == "_back":
                 if self.use_playlists:
-                    return select_playlist(self.playlists, self.pick_playlist)
+                    return select_playlist(self.playlists, self.pick_playlist,
+                                           placeholder=self.playlist_placeholder)
 
             videos = sorted(tag_list[tag], key=lambda k: int(k["statistics.viewCount"]), reverse=True)
 
-            placeholder = "Copy video link from tag '%s'" % tag
+            # Use the default, unless we have a specific placeholder for this.
+            placeholder = (None if not self.video_tag_placeholder else
+                           self.video_tag_placeholder.format(tag=tag))
+
             # Video ID is in contentDetails.videoId for short results or id for
             # full details (due to it being a different type of request)
             select_video(videos, lambda vid: self.select_video(vid, tag, tag_list),
@@ -268,9 +291,11 @@ class YouTubeVideoSelect(YoutubeRequest):
             # When using both tags and playlists, the browse order should send
             # us back to tags first and from there to playlists.
             if self.use_tags:
-                return select_tag(None, self.pick_tag, self.use_playlists, tag_list)
+                return select_tag(None, self.pick_tag, self.use_playlists, tag_list,
+                                  placeholder=self.tag_placeholder)
 
-            return select_playlist(self.playlists, self.pick_playlist)
+            return select_playlist(self.playlists, self.pick_playlist,
+                                   placeholder=self.playlist_placeholder)
 
         self.picked_video(video, tag, tag_list)
 
@@ -283,7 +308,7 @@ class YouTubeVideoSelect(YoutubeRequest):
                 else:
                     return select_video(tag_list, lambda vid: self.select_video(vid, None, None),
                                         show_back=self.use_playlists,
-                                        placeholder="Copy video link")
+                                        placeholder=self.video_placeholder)
 
             self.picked_toc(timecode, text, video)
 
@@ -298,8 +323,11 @@ class YouTubeVideoSelect(YoutubeRequest):
         be ignored by outside code, as its value and use changes depending on
         how the user is browsing around in the content.
         """
+        placeholder = (None if not self.timecode_placeholder else
+                       self.timecode_placeholder.format(title=video['snippet.title']))
+
         select_timecode(video, lambda a, b: self.pick_toc(a, b, video, tag, tag_list),
-                        show_back=True)
+                        show_back=True, placeholder=placeholder)
 
     def picked_toc(self, timecode, text, video):
         """

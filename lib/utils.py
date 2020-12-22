@@ -149,7 +149,7 @@ def select_playlist(playlists, callback, show_back=False, placeholder=None):
     to go back to a previous panel; in this case the callback returns a
     playlist with the special sentinel id of "_back".
     """
-    placeholder = placeholder or "Select playlist"
+    placeholder = placeholder or "Select a playlist"
     items = [QuickPanelItem(
                p['snippet.title'],
                "",
@@ -233,7 +233,7 @@ def select_video(videos, callback, show_back=False, placeholder=None):
     to go back to a previous panel; in this case the callback returns a video
     with the special sentinel id of "_back".
     """
-    placeholder = placeholder or "Select video"
+    placeholder = placeholder or "Select a video"
     items = [QuickPanelItem(
                v['snippet.title'],
                "",
@@ -277,7 +277,7 @@ def select_timecode(video, callback, show_back=False, placeholder=None):
     if not toc:
         return callback("00:00", None)
 
-    placeholder = placeholder or "Timecode in '%s'" % video['snippet.title']
+    placeholder = placeholder or "Choose time code in '%s'" % video['snippet.title']
     toc = [QuickPanelItem(i[1], "", i[0], KIND_TOC) for i in toc]
 
     if show_back:

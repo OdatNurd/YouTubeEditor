@@ -18,6 +18,12 @@ class YoutubeEditorGetVideoLinkCommand(YouTubeVideoSelect, sublime_plugin.Applic
     provided, each one adds an extra layer of lookup to help drill down and
     find the desired video.
     """
+    playlist_placeholder = "Get Link: Select a playlist"
+    tag_placeholder = "Get Link: Browse by tag"
+    video_placeholder = "Get Link: Select video"
+    video_tag_placeholder = "Get Link: Select video in tag '{tag}'"
+    timecode_placeholder = "Get Link from '{title}"
+
     def picked_toc(self, timecode, text, video):
         copy_video_link(make_video_link(video['id'], timecode), video['snippet.title'])
 
