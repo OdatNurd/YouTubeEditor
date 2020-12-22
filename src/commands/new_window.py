@@ -32,7 +32,7 @@ class YoutubeEditorNewWindowCommand(sublime_plugin.WindowCommand):
     The command can optionally also pre-populate the information for any of the
     views, and will mark itself with the video ID as well if one is given.
     """
-    def run(self, video_id=None, title='', description='', tags=[]):
+    def run(self, video_id=None, title='', description='', tags=[], details=None):
         if isinstance(tags, str):
             tags = [tags]
 
@@ -45,6 +45,9 @@ class YoutubeEditorNewWindowCommand(sublime_plugin.WindowCommand):
         new_window.settings().set("_yte_youtube_window", True)
         if video_id is not None:
             new_window.settings().set("_yte_video_id", video_id)
+
+        if details is not None:
+            new_window.settings().set("_yte_video_details", details)
 
         details = [
             {
