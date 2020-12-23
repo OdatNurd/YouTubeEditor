@@ -4,6 +4,8 @@
     { "caption": "-", "id": "links" },
     { "command": "youtube_editor_copy_video_link" },
     { "command": "youtube_editor_view_video_link" },
+    { "caption": "-", "id": "editing" },
+    { "caption": "Edit in YouTube Studio", "command": "youtube_editor_edit_in_studio" },
     { "caption": "-", "id": "clipboard" },
     { "command": "copy" },
     { "caption": "-", "id": "selection" },
