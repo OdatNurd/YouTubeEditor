@@ -40,7 +40,7 @@ def log(msg, *args, dialog=False, error=False, panel=True, display=False, **kwar
     if panel:
         # Output to the panel in all windows
         for window in sublime.windows():
-            view = window.find_output_panel("youtubeeditor")
+            view = window.find_output_panel("YouTubeEditor Log")
             view.run_command("append", {
                 "characters": msg + "\n",
                 "force": True,
@@ -78,7 +78,7 @@ def setup_log_panel(window, src_window=None):
     window is provided, the content of the panel in that window will be copied
     into the newly created panel to syncrhonize them.
     """
-    view = window.create_output_panel("youtubeeditor")
+    view = window.create_output_panel("YouTubeEditor Log")
     view.set_read_only(True)
     view.settings().set("gutter", False)
     view.settings().set("rulers", [])
@@ -86,7 +86,7 @@ def setup_log_panel(window, src_window=None):
     view.settings().set("context_menu", "YouTubeLog.sublime-menu")
 
     if src_window:
-        src_view = src_window.find_output_panel("youtubeeditor")
+        src_view = src_window.find_output_panel("YouTubeEditor Log")
         if src_view:
             text = src_view.substr(sublime.Region(0, len(src_view)))
             view.run_command("append", {
@@ -105,7 +105,7 @@ def display_output_panel():
     that the panel is desired.
     """
     window = sublime.active_window()
-    if window.active_panel() == 'output.youtubeeditor':
+    if window.active_panel() == 'output.YouTube Editor Log':
         return
 
     # True for always, False for Never, number for Always (but autoclose);
@@ -116,7 +116,7 @@ def display_output_panel():
         return
 
     # Show the panel, and if desired autoclose it.
-    window.run_command("show_panel", {"panel": "output.youtubeeditor"})
+    window.run_command("show_panel", {"panel": "output.YouTube Editor Log"})
     if isinstance(show_panel, bool) == False and isinstance(show_panel, int):
         close_panel_after_delay(window, show_panel * 1000)
 
