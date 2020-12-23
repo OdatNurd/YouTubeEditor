@@ -428,13 +428,9 @@ class NetworkThread(Thread):
 
         if channel_id in self.cache['channel_details']:
             if request["refresh"]:
-                log("DBG: Clearing Channel Cache (in ID)")
                 self.cache["channel_list"] = []
             else:
-                log("DBG: Returning cached data (in ID)")
                 return self.cache["channel_details"][channel_id]
-        else:
-            log("DBG: Cache miss on channel data (in ID)")
 
         self.channel_list(Request("channel_list"))
         if channel_id in self.cache["channel_details"]:
@@ -451,13 +447,9 @@ class NetworkThread(Thread):
 
         if "channel_list" in self.cache and self.cache["channel_list"]:
             if request["refresh"]:
-                log("DBG: Clearing Channel Cache")
                 self.cache["channel_list"] = []
             else:
-                log("DBG: Returning cached data")
                 return self.cache["channel_list"]
-        else:
-            log("DBG: Cache miss on channel data")
 
         # Request breakdown is as follows. Note that snippet and
         # brandingSettings have overlap between them, but each has information
@@ -486,7 +478,6 @@ class NetworkThread(Thread):
         for channel in result:
             self.cache["channel_details"][channel["id"]] = channel
 
-        log("DBG: Cached channel response")
         save_cached_request_data(self.cache)
 
         return result
@@ -503,13 +494,9 @@ class NetworkThread(Thread):
 
         if channel_id in self.cache["playlist_list"]:
             if request["refresh"]:
-                log("DBG: Clearing Playlist Cache")
                 del self.cache["playlist_list"][channel_id]
             else:
-                log("DBG: Returning cached data for playlist")
                 return self.cache["playlist_list"][channel_id]
-        else:
-            log("DBG: Cache miss on playlist data")
 
         # Request breakdown is as follows.
         #
@@ -541,7 +528,6 @@ class NetworkThread(Thread):
 
         self.cache["playlist_list"][channel_id] = results
 
-        log("DBG: Cached playlist response")
         save_cached_request_data(self.cache)
 
         return results
@@ -559,19 +545,14 @@ class NetworkThread(Thread):
 
         if playlist_id in self.cache['playlist_contents']:
             if request["refresh"]:
-                log("DBG: Clearing Playlist Contents Cache")
                 del self.cache["playlist_contents"][playlist_id]
 
                 # TODO: This clobbers playlist video details for every possible
                 #       video; should it only clobber videos that appear in the
                 #       playlist we're re-fetching instead?
-                log("DBG: Clearing Playlist Video Contents Cache")
                 self.cache["playlist_videos"] = {}
             else:
-                log("DBG: Returning cached playlist data")
                 return self.cache["playlist_contents"][playlist_id]
-        else:
-            log("DBG: Cache miss on playlist contents")
 
         # Request breakdown is as follows. Note that snippet and contentDetails
         # have overlap between them, but each has information that the other
@@ -612,7 +593,6 @@ class NetworkThread(Thread):
         # Cache the results for a future call
         self.cache["playlist_contents"][playlist_id] = results
 
-        log("DBG: Cached playlist response")
         save_cached_request_data(self.cache)
 
         return results
