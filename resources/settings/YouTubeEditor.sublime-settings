@@ -12,6 +12,14 @@
     // number: show the panel, but hide it after this many seconds
     "auto_show_panel": 2,
 
+    // When set to True, any report output from utilites is sent to a buffer in
+    // the current window. The default ia to display report output in a panel
+    // instead.
+    //
+    // When report output is sent to a view, an existing view will be cleared
+    // and re-used if possible.
+    "report_output_to_view": false,
+
     // Set the location to use as the default location when asking the user to
     // select a Camtasia project file. If this is not set, the default is to
     // use the user's home directory instead.

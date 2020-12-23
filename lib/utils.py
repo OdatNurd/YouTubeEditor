@@ -308,7 +308,55 @@ def select_timecode(video, callback, show_back=False, placeholder=None):
     sublime.active_window().show_quick_panel(toc, pick, placeholder=placeholder)
 
 
-## ----------------------------------------------------------------------------
+def get_report_view(window, caption, syntax=None):
+    """
+    Given a window, return back the view to use when displaying reports in that
+    window. This could be a panel or a view, depending on the settings the user
+    has set.
+
+    The view returned is always cleared out and ready for new content to be
+    added.
+    """
+    if yte_setting("report_output_to_view"):
+        for view in window.views():
+            if view.name() == caption:
+                view.set_read_only(False)
+                view.run_command("select_all")
+                view.run_command("left_delete")
+                view.set_read_only(True)
+                return view
+
+        view = window.new_file()
+        view.set_name(caption)
+        view.set_scratch(True)
+    else:
+        view = window.create_output_panel("YouTubeEditor Utility Output")
+
+    if syntax:
+        view.assign_syntax(syntax)
+
+    view.set_read_only(True)
+
+    return view
+
+
+def add_report_text(contents, view=None, window=None, caption=None, syntax=None):
+    window = window or sublime.active_window()
+
+    if view is None:
+        view = get_report_view(window, caption or "???", syntax)
+
+    if isinstance(contents, list):
+        contents = "\n".join(contents)
+
+    view.run_command("append", {"characters": contents, "force": True})
+
+    if not yte_setting("report_output_to_view"):
+        window.run_command("show_panel", {
+            "panel": "output.YouTubeEditor Utility Output"
+        })
+
+    return view
 
 
 def undotty_data(data):

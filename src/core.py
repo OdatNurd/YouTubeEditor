@@ -75,6 +75,8 @@ def loaded():
         "camtasia_folder": os.path.expanduser("~"),
         "auto_show_panel": 2,
 
+        "report_output_to_view": False,
+
         "cache_downloaded_data": True,
         "encrypt_cache": False,
 
