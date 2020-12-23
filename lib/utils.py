@@ -8,6 +8,8 @@ import re
 
 from timeit import default_timer as timer
 
+from . import dotty
+
 
 ###----------------------------------------------------------------------------
 
@@ -292,6 +294,28 @@ def select_timecode(video, callback, show_back=False, placeholder=None):
         callback(toc[i].annotation, toc[i].trigger)
 
     sublime.active_window().show_quick_panel(toc, pick, placeholder=placeholder)
+
+
+## ----------------------------------------------------------------------------
+
+
+def undotty_data(data):
+    """
+    Given any piece of data, recursively scan it and unwrap any Dotty
+    dictionaries that the data might contain. The unwrapped value is returned
+    back.
+
+    Dotty wraps dictionaries without modifying them, so this is fairly
+    performant.
+    """
+    if isinstance(data, dotty.Dotty):
+        data = data.to_dict()
+
+    if isinstance(data, dict):
+        for key in data:
+            data[key] = undotty_data(data[key])
+
+    return data
 
 
 ## ----------------------------------------------------------------------------

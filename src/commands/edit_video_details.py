@@ -5,7 +5,7 @@ import base64
 import requests
 
 from ..core import YouTubeVideoSelect
-from ...lib import select_video
+from ...lib import select_video, undotty_data
 
 
 ###----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ class YoutubeEditorEditVideoDetailsCommand(YouTubeVideoSelect, sublime_plugin.Ap
             'title': video["snippet.title"],
             'description': video["snippet.description"],
             'tags': video.get("snippet.tags", []),
-            'details': video.to_dict()
+            'details': undotty_data(video)
             })
 
         sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), video["id"]))
