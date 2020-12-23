@@ -30,6 +30,8 @@
       "args": {"insert": true}
     },
 
+    { "caption": "YouTubeEditor: Show videos with missing TOC", "command": "youtube_editor_missing_contents" },
+
     {
         "caption": "Preferences: YouTubeEditor Settings",
         "command": "edit_settings",
