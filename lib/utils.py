@@ -102,6 +102,18 @@ def make_video_link(video_id, timecode=None):
     return "https://youtu.be/%s%s" % (video_id, query)
 
 
+def make_studio_edit_link(video_id):
+    """
+    Given a video ID, return back a link to that video that will cause YouTube
+    to  open the data editor for it in YouTube Studio.
+    """
+    if video_id is None:
+        print("YouTubeEditor:make_studio_edit_link() no video_id provided")
+        return None
+
+    return "https://studio.youtube.com/video/%s/edit" % video_id
+
+
 def get_video_timecode(view, event, as_string=True):
     """
     If the text under the cursor in the provided view is a timecode, capture it
