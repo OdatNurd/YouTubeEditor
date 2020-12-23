@@ -274,6 +274,17 @@ def select_video(videos, callback, show_back=False, placeholder=None):
     sublime.active_window().show_quick_panel(items, pick, placeholder=placeholder)
 
 
+def get_table_of_contents(video):
+    """
+    Given a video dictionary, return back the table of contents of that video,
+    if any. The return is a list which contains tuples that provide a timecode
+    value and the text associated with that timecode.
+
+    For videos with no table of contents, this returns an empty list.
+    """
+    return _toc_regex.findall(video['snippet.description'])
+
+
 def select_timecode(video, callback, show_back=False, placeholder=None):
     """
     Given a video dictionary, display the table of contents from the
@@ -287,7 +298,7 @@ def select_timecode(video, callback, show_back=False, placeholder=None):
     to go back to a previous panel; in this case the timecode provided to the
     callback is the special sentinel value "_back".
     """
-    toc = _toc_regex.findall(video['snippet.description'])
+    toc = get_table_of_contents(video)
     if not toc:
         return callback("00:00", None)
 
