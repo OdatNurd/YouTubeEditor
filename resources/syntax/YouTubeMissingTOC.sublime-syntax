@@ -1,0 +1,23 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+scope: text.youtube.utility.missing
+name: Videos with no TOC
+hidden: true
+contexts:
+  main:
+    - match: ''
+      push: [body, first_line]
+
+  first_line:
+    - meta_scope: entity.name.function
+
+    - match: '\n'
+      pop: true
+
+  body:
+    - match: '^(.*) (=>) (.*)'
+      captures:
+        1: markup.heading
+        2: punctuation.separator
+        3: markup.underline.link

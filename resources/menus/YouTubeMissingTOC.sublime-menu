@@ -1,0 +1,9 @@
+[
+    { "caption": "-", "id": "base" },
+    { "command": "open_context_url" },
+    { "caption": "-", "id": "youtube" },
+    { "caption": "-", "id": "clipboard" },
+    { "command": "copy" },
+    { "caption": "-", "id": "selection" },
+    { "command": "select_all" },
+]

@@ -1,0 +1,9 @@
+{
+    "word_wrap": false,
+    "rulers": [],
+    "line_numbers": false,
+    "spell_check": true,
+    "spelling_selector": "text.youtube - markup.underline.link",
+    "gutter": false,
+    "context_menu": "YouTubeMissingTOC.sublime-menu"
+}
