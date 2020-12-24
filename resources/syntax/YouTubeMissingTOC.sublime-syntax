@@ -4,20 +4,33 @@
 scope: text.youtube.utility.missing
 name: Videos with no TOC
 hidden: true
+variables:
+  # This is entirely unofficial and there is no official documentation on it
+  # except mentions that if you want to know if something is a video ID, try to
+  # go there and see what the response from the browser is, which is unhelpful
+  # to say the least.
+  videoid: '[A-Za-z0-9_-]{11}'
 contexts:
   main:
     - match: ''
-      push: [body, first_line]
+      push: [body, title]
 
-  first_line:
-    - meta_scope: entity.name.function
-
-    - match: '\n'
+  title:
+    - match: '---+\n'
+      scope: punctuation.definition.thematic-break
       pop: true
 
+    - match: '.*'
+      scope: markup.heading
+
   body:
-    - match: '^(.*) (=>) (.*)'
+    - match: 'videoid=({{videoid}})'
       captures:
-        1: markup.heading
+        0: meta.record.youtube
+        1: meta.videoid.youtube
+
+    - match: '(.*) (=>) (.*)'
+      captures:
+        1: entity.name.title
         2: punctuation.separator
         3: markup.underline.link
