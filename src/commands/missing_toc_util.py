@@ -29,15 +29,19 @@ class YoutubeEditorMissingContentsCommand(YoutubeRequest,sublime_plugin.Applicat
             return sublime.message_dialog("All videos contain a table of contents!")
 
         missing = sorted(missing, key=lambda k: k["snippet.title"])
-        content = ["Videos with Missing TOC in Description\n"]
-        for v in missing:
-            entry = "{title} => {url}".format(
-                title=v['snippet.title'],
-                url=make_studio_edit_link(v['id']))
+        content = ["Videos with Missing TOC in Description",
+                   "--------------------------------------\n"]
+
+        for video in missing:
+            entry = "videoid={id}{title} => {url}".format(
+                id=video['id'],
+                title=video['snippet.title'],
+                url=make_studio_edit_link(video['id']))
             content.append(entry)
 
-        add_report_text(content, caption="Missing TOC",
-                        syntax=yte_syntax("YouTubeMissingTOC"))
+        panel = add_report_text(content, caption="Missing TOC",
+                                syntax=yte_syntax("YouTubeMissingTOC"))
 
 
 ###----------------------------------------------------------------------------
+
