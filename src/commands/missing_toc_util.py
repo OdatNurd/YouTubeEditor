@@ -42,6 +42,10 @@ class YoutubeEditorMissingContentsCommand(YoutubeRequest,sublime_plugin.Applicat
         panel = add_report_text(content, caption="Missing TOC",
                                 syntax=yte_syntax("YouTubeMissingTOC"))
 
+        panel.run_command("youtube_editor_video_markup", {
+            "control_html": "controls_here"
+        })
+
 
 ###----------------------------------------------------------------------------
 
