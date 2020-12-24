@@ -16,14 +16,28 @@ class YoutubeEditorVideoMarkupCommand(sublime_plugin.TextCommand):
         {id} : The video_id of a video
     """
     def run(self, edit, control_html):
+        self.phantoms = sublime.PhantomSet(self.view, 'videoControls')
+        phantoms = []
+
         self.view.set_read_only(False)
 
-        for region in reversed(self.view.find_by_selector('meta.record.youtube')):
+        adjust = 0
+        for span in self.view.find_by_selector('meta.record.youtube'):
+            region = sublime.Region(span.a - adjust, span.b - adjust)
+            adjust += len(region)
+
             info = self.view.substr(region)
             video_id = info.split("=", 1)[1]
 
+            control_html = control_html.format(id=video_id)
+
             self.view.erase(edit, region)
 
+            phantoms.append(sublime.Phantom(sublime.Region(region.a),
+                            control_html,
+                            sublime.LAYOUT_INLINE))
+
+        self.phantoms.update(phantoms)
         self.view.set_read_only(True)
 
 
