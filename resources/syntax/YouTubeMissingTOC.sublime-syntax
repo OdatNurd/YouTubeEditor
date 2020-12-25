@@ -29,8 +29,11 @@ contexts:
         0: meta.record.youtube
         1: meta.videoid.youtube
 
-    - match: '(.*) (=>) (.*)'
+    - match: '(.*) (\d+) view\(s\) \((✔):(\d+) (✘):(\d+)\)'
       captures:
-        1: entity.name.title
-        2: punctuation.separator
-        3: markup.underline.link
+        1: entity.name.function
+        2: constant.numeric
+        3: string
+        4: constant.numeric
+        5: storage
+        6: constant.numeric
