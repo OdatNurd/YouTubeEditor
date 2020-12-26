@@ -378,6 +378,8 @@ def add_report_text(contents, view=None, window=None, caption=None, syntax=None)
         window.run_command("show_panel", {
             "panel": "output.YouTubeEditor Utility Output"
         })
+    else:
+        window.focus_view(view)
 
     return view
 
