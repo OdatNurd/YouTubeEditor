@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 
 from ..lib import log, setup_log_panel, dotty
+from .video_popup import show_video_popup
 
 from bisect import bisect_left
 
@@ -96,7 +97,7 @@ class YouTubeVideoReportEventListener(sublime_plugin.ViewEventListener):
 
         video_info = self._get_video_info(point)
         if video_info:
-            print(video_info['snippet.title'])
+            show_video_popup(self.view, point, video_info)
 
     def _get_video_info(self, point):
         ids = self.view.settings().get("_yte_video_ids")
