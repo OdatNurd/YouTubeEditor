@@ -3,7 +3,7 @@ import sublime_plugin
 
 from ..core import YoutubeRequest
 from ...lib import yte_syntax, add_report_text, get_table_of_contents
-from ...lib import video_sort, make_studio_edit_link
+from ...lib import video_sort, make_studio_edit_link, undotty_data
 
 
 ###----------------------------------------------------------------------------
@@ -55,6 +55,11 @@ class YoutubeEditorMissingContentsCommand(YoutubeRequest,sublime_plugin.Applicat
 
         panel = add_report_text(content, caption="Missing TOC",
                                 syntax=yte_syntax("YouTubeMissingTOC"))
+
+        # Include information on the video ID's and a lookup table for videos
+        # that are contained in the report, so that we can look them up later.
+        panel.settings().set("_yte_video_ids", [v['id'] for v in missing])
+        panel.settings().set("_yte_video_info", {v['id']: undotty_data(v) for v in missing})
 
         panel.run_command("youtube_editor_video_markup", {
             "control_html": _controls_html
