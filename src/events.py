@@ -1,8 +1,9 @@
 import sublime
 import sublime_plugin
 
+from ..lib import log, setup_log_panel, dotty
 
-from ..lib import log, setup_log_panel
+from bisect import bisect_left
 
 
 ###----------------------------------------------------------------------------
@@ -93,7 +94,26 @@ class YouTubeVideoReportEventListener(sublime_plugin.ViewEventListener):
             not self.view.match_selector(point, 'meta.title.youtube')):
             return
 
-        print("Title Hover")
+        video_info = self._get_video_info(point)
+        if video_info:
+            print(video_info['snippet.title'])
+
+    def _get_video_info(self, point):
+        ids = self.view.settings().get("_yte_video_ids")
+        info = self.view.settings().get("_yte_video_info")
+
+        try:
+            title_region = self.view.extract_scope(point)
+            titles = self.view.find_by_selector('meta.title.youtube')
+            idx = bisect_left(titles, title_region)
+
+            if idx != len(titles) and titles[idx] == title_region:
+                video_id = ids[idx]
+                return dotty.Dotty(info[video_id])
+        except:
+            pass
+
+        return None
 
 
 ###----------------------------------------------------------------------------
