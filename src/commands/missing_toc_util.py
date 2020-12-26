@@ -42,10 +42,6 @@ class YoutubeEditorMissingContentsCommand(YoutubeRequest,sublime_plugin.Applicat
         panel.settings().set("_yte_video_ids", [v['id'] for v in missing])
         panel.settings().set("_yte_video_info", {v['id']: undotty_data(v) for v in missing})
 
-        panel.run_command("youtube_editor_video_markup", {
-            "control_html": _controls_html
-        })
-
 
 ###----------------------------------------------------------------------------
 

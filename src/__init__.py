@@ -25,7 +25,6 @@ __all__ = [
     "YoutubeEditorClearLogCommand",
     "YoutubeEditorFlushCacheCommand",
     "YoutubeEditorMissingContentsCommand",
-    "YoutubeEditorVideoMarkupCommand",
 
     # Events
     "YoutubeTitleEventListener",
