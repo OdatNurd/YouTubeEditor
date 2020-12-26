@@ -63,6 +63,18 @@ def yte_setting(key):
     return yte_setting.obj.get(key, default)
 
 
+def video_sort(videos, key,  keyType=str, reverse=False):
+    """
+    Given a list of video records that are dotty dictionaries return back a
+    sorted version that is sorted based on the provided key. The keys will be
+    converted using the given key type during the sort for comparison purposes.
+
+    This is a very simple wrapper on a standard function, but the plan is to
+    also implement filtering at some point in the future as well.
+    """
+    return sorted(videos, key=lambda k: keyType(k[key]), reverse=reverse)
+
+
 def __convert_timecode(timecode):
     """
     Takes a timecode value that's either a string or a number and returns it

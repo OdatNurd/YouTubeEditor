@@ -5,7 +5,7 @@ import os
 
 from ..lib import log, setup_log_panel, yte_setting, dotty
 from ..lib import select_video, select_playlist, select_tag, select_timecode
-from ..lib import Request, NetworkManager, stored_credentials_path
+from ..lib import Request, NetworkManager, stored_credentials_path, video_sort
 
 # TODO:
 #  - Hit the keyword in the first few lines and 2-3 times total
@@ -237,7 +237,7 @@ class YouTubeVideoSelect(YoutubeRequest):
             self.pick_playlist(self.uploads_playlist)
 
     def _playlist_list(self, request, result):
-        self.playlists = sorted(result, key=lambda k: k["snippet.title"])
+        self.playlists = video_sort(result, 'snippet.title')
         self.playlists.insert(0, self.uploads_playlist)
 
         select_playlist(self.playlists, self.pick_playlist,
@@ -256,7 +256,7 @@ class YouTubeVideoSelect(YoutubeRequest):
             # Pass the video list as the tag_list to the lambda so it can be
             # picked up and used again if the user goes back while editing the
             # timecode.
-            videos = sorted(result, key=lambda k: int(k["statistics.viewCount"]), reverse=True)
+            videos = video_sort(result, "statistics.viewCount", int, True)
             select_video(videos, lambda vid: self.select_video(vid, None, videos),
                          show_back=self.use_playlists,
                          placeholder=self.video_placeholder)
@@ -274,7 +274,7 @@ class YouTubeVideoSelect(YoutubeRequest):
                     return select_playlist(self.playlists, self.pick_playlist,
                                            placeholder=self.playlist_placeholder)
 
-            videos = sorted(tag_list[tag], key=lambda k: int(k["statistics.viewCount"]), reverse=True)
+            videos = video_sort(tag_list[tag], "statistics.viewCount", int, True)
 
             # Use the default, unless we have a specific placeholder for this.
             placeholder = (None if not self.video_tag_placeholder else

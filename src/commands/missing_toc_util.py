@@ -3,7 +3,7 @@ import sublime_plugin
 
 from ..core import YoutubeRequest
 from ...lib import yte_syntax, add_report_text, get_table_of_contents
-from ...lib import make_studio_edit_link
+from ...lib import video_sort, make_studio_edit_link
 
 
 ###----------------------------------------------------------------------------
@@ -41,11 +41,10 @@ class YoutubeEditorMissingContentsCommand(YoutubeRequest,sublime_plugin.Applicat
                     playlist_id=self.channel['contentDetails.relatedPlaylists.uploads'])
 
     def _playlist_contents(self, request, result):
-        missing = [v for v in result if not get_table_of_contents(v)]
+        missing = [v for v in video_sort(result, 'snippet.title') if not get_table_of_contents(v)]
         if not missing:
             return sublime.message_dialog("All videos contain a table of contents!")
 
-        missing = sorted(missing, key=lambda k: k["snippet.title"])
         content = ["Videos with Missing TOC in Description",
                    "--------------------------------------\n"]
 
