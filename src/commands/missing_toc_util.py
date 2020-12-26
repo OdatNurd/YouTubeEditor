@@ -9,23 +9,6 @@ from ...lib import video_sort, make_studio_edit_link, undotty_data
 ###----------------------------------------------------------------------------
 
 
-_controls_html = """
-<body id="my-plugin-feature">
-    <style>
-        html, body {{
-            margin: 0;
-            padding: 0;
-            background-color: transparent;
-        }}
-        a {{
-            text-decoration: none;
-            font-size: 0.8rem;
-        }}
-    </style>
-    [<a href="subl:youtube_editor_edit_in_studio {{&quot;video_id&quot;:&quot;{id}&quot;}}">Edit</a>]
-</body>
-"""
-
 class YoutubeEditorMissingContentsCommand(YoutubeRequest,sublime_plugin.ApplicationCommand):
     """
     This command will determine which videos on the channel don't have any
@@ -49,9 +32,7 @@ class YoutubeEditorMissingContentsCommand(YoutubeRequest,sublime_plugin.Applicat
                    "--------------------------------------\n"]
 
         for video in missing:
-            entry = "videoid={id}{title}".format(id=video['id'],
-                                                  title=video['snippet.title'])
-            content.append(entry)
+            content.append(video['snippet.title'])
 
         panel = add_report_text(content, caption="Missing TOC",
                                 syntax=yte_syntax("YouTubeMissingTOC"))

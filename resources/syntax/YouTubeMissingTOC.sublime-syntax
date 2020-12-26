@@ -30,4 +30,4 @@ contexts:
         1: meta.videoid.youtube
 
     - match: '(.*)'
-      scope: entity.name.function
+      scope: meta.video.youtube meta.title.youtube entity.name.function
