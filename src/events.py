@@ -80,7 +80,20 @@ class YoutubeTagsEventListener(sublime_plugin.ViewEventListener):
             self.view.erase_regions('_yt_tag_body')
 
 
-
 ###----------------------------------------------------------------------------
 
 
+class YouTubeVideoReportEventListener(sublime_plugin.ViewEventListener):
+    @classmethod
+    def is_applicable(cls, settings):
+        return settings.get("_yte_video_ids") and settings.get("_yte_video_info")
+
+    def on_hover(self, point, hover_zone):
+        if (hover_zone != sublime.HOVER_TEXT or
+            not self.view.match_selector(point, 'meta.title.youtube')):
+            return
+
+        print("Title Hover")
+
+
+###----------------------------------------------------------------------------
