@@ -49,13 +49,8 @@ class YoutubeEditorMissingContentsCommand(YoutubeRequest,sublime_plugin.Applicat
                    "--------------------------------------\n"]
 
         for video in missing:
-            entry = "videoid={id}{title} {views} view(s) (✔:{like} ✘:{dislike})".format(
-                id=video['id'],
-                title=video['snippet.title'],
-                views=video['statistics.viewCount'],
-                like=video['statistics.likeCount'],
-                dislike=video['statistics.dislikeCount'],
-                url=make_studio_edit_link(video['id']))
+            entry = "videoid={id}{title}".format(id=video['id'],
+                                                  title=video['snippet.title'])
             content.append(entry)
 
         panel = add_report_text(content, caption="Missing TOC",
