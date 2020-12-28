@@ -54,6 +54,14 @@ _video_popup = """
         .description {{
             color: color(var(--foreground) alpha(0.70));
         }}
+        .tags {{
+            width: 40rem;
+            margin: 0;
+            padding: 0;
+            border-top: 1px solid var(--greenish);
+            color: color(var(--greenish) alpha(0.7));
+            font-size: 0.9rem;
+        }}
      </style>
      {body}
 </body>
@@ -67,6 +75,7 @@ _body = """
     <span class="dislikes">✘:{dislikes}</span>
 </div>
 <p class="description">{description}</p>
+<div class="tags">{tags}</div>
 """
 
 
@@ -90,7 +99,8 @@ def show_video_popup(view, point, video):
             views=video['statistics.viewCount'],
             likes=video['statistics.likeCount'],
             dislikes=video['statistics.dislikeCount'],
-            description=video['snippet.description'].split('\n', 1)[0]
+            description=video['snippet.description'].split('\n', 1)[0],
+            tags=", ".join(video.get("snippet.tags", []))
             )
     )
 
@@ -99,7 +109,7 @@ def show_video_popup(view, point, video):
         flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
         location=point,
         max_width=1024,
-        max_height=512)
+        max_height=1024)
 
 
 ###----------------------------------------------------------------------------
