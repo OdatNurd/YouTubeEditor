@@ -62,6 +62,14 @@ _video_popup = """
             color: color(var(--greenish) alpha(0.7));
             font-size: 0.9rem;
         }}
+        .commands {{
+            width: 40rem;
+            margin: 0;
+            padding: 0;
+            border-top: 1px solid var(--greenish);
+            color: color(var(--greenish) alpha(0.7));
+            font-size: 0.9rem;
+        }}
      </style>
      {body}
 </body>
@@ -76,6 +84,12 @@ _body = """
 </div>
 <p class="description">{description}</p>
 <div class="tags">{tags}</div>
+<div class="commands">
+  [ <a href="subl:echo {{&quot;video_id&quot;:&quot;{video_id}&quot;}}">Watch</a> ]
+  [ <a href="subl:echo {{&quot;video_id&quot;:&quot;{video_id}&quot;}}">Get Link</a> ]
+  [ <a href="subl:echo {{&quot;video_id&quot;:&quot;{video_id}&quot;}}">Edit</a> ]
+  [ <a href="subl:youtube_editor_edit_in_studio {{&quot;video_id&quot;:&quot;{video_id}&quot;}}">Edit in Studio</a> ]
+</div>
 """
 
 
@@ -100,7 +114,8 @@ def show_video_popup(view, point, video):
             likes=video['statistics.likeCount'],
             dislikes=video['statistics.dislikeCount'],
             description=video['snippet.description'].split('\n', 1)[0],
-            tags=", ".join(video.get("snippet.tags", []))
+            tags=", ".join(video.get("snippet.tags", [])),
+            video_id=video['id']
             )
     )
 
