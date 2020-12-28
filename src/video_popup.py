@@ -22,6 +22,20 @@ _video_popup = """
             border-bottom: 2px solid var(--bluish);
             color: var(--bluish);
         }}
+        h1 span {{
+            font-size: 0.80rem;
+            position: relative;
+            left: 0;
+        }}
+        .private {{
+            color: var(--redish);
+        }}
+        .public {{
+            color: var(--greenish);
+        }}
+        .unlisted {{
+            color: var(--yellowish);
+        }}
         .statistics {{
             font-size: 0.8rem;
             line-height: 0.8rem;
@@ -46,7 +60,7 @@ _video_popup = """
 """
 
 _body = """
-<h1>{title}</h1>
+<h1>{title} <span class="{vis_class}">({visibility})</span></h1>
 <div class="statistics">
     <span class="viewcount">{views} views</span>
     <span class="likes">✔:{likes}</span>
@@ -71,6 +85,8 @@ def show_video_popup(view, point, video):
     content = _video_popup.format(
         body=_body.format(
             title=video['snippet.title'],
+            vis_class=video['status.privacyStatus'],
+            visibility=video['status.privacyStatus'].title(),
             views=video['statistics.viewCount'],
             likes=video['statistics.likeCount'],
             dislikes=video['statistics.dislikeCount'],
