@@ -24,8 +24,18 @@ class YoutubeEditorGetVideoLinkCommand(YouTubeVideoSelect, sublime_plugin.Applic
     video_tag_placeholder = "Get Link: Select video in tag '{tag}'"
     timecode_placeholder = "Get Link from '{title}"
 
-    def picked_toc(self, timecode, text, video):
-        copy_video_link(make_video_link(video['id'], timecode), video['snippet.title'])
+    def run(self, **kwargs):
+        video_id = kwargs.get("video_id")
+        timecode = kwargs.get("timecode")
+        if video_id is not None:
+            return self.generate_link(video_id, timecode)
 
+        super().run(**kwargs)
+
+    def picked_toc(self, timecode, text, video):
+        self.generate_link(video['id'], timecode, video['snippet.title'])
+
+    def generate_link(self, video_id, timecode, title=None):
+        copy_video_link(make_video_link(video_id, timecode), title)
 
 ###----------------------------------------------------------------------------
