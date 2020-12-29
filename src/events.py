@@ -85,27 +85,27 @@ class YoutubeTagsEventListener(sublime_plugin.ViewEventListener):
 ###----------------------------------------------------------------------------
 
 
-class YouTubeVideoReportEventListener(sublime_plugin.ViewEventListener):
-    @classmethod
-    def is_applicable(cls, settings):
-        return settings.get("_yte_video_ids") and settings.get("_yte_video_info")
-
-    def on_hover(self, point, hover_zone):
-        if (hover_zone != sublime.HOVER_TEXT or
-            not self.view.match_selector(point, 'meta.title.youtube')):
+class YouTubeVideoReportEventListener(sublime_plugin.EventListener):
+    def on_hover(self, view, point, hover_zone):
+        s = view.settings()
+        if not (s.get("_yte_video_ids") and s.get("_yte_video_info")):
             return
 
-        video_info = self._get_video_info(point)
-        if video_info:
-            show_video_popup(self.view, point, video_info)
+        if (hover_zone != sublime.HOVER_TEXT or
+            not view.match_selector(point, 'meta.title.youtube')):
+            return
 
-    def _get_video_info(self, point):
-        ids = self.view.settings().get("_yte_video_ids")
-        info = self.view.settings().get("_yte_video_info")
+        video_info = self._get_video_info(view, point)
+        if video_info:
+            show_video_popup(view, point, video_info)
+
+    def _get_video_info(self, view, point):
+        ids = view.settings().get("_yte_video_ids")
+        info = view.settings().get("_yte_video_info")
 
         try:
-            title_region = self.view.extract_scope(point)
-            titles = self.view.find_by_selector('meta.title.youtube')
+            title_region = view.extract_scope(point)
+            titles = view.find_by_selector('meta.title.youtube')
             idx = bisect_left(titles, title_region)
 
             if idx != len(titles) and titles[idx] == title_region:
