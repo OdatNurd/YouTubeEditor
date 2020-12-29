@@ -86,7 +86,7 @@ _body = """
 <div class="tags">{tags}</div>
 <div class="commands">
   [ <a href="subl:youtube_editor_view_video_link {{&quot;video_id&quot;:&quot;{video_id}&quot;}}">Watch</a> ]
-  [ <a href="subl:echo {{&quot;video_id&quot;:&quot;{video_id}&quot;}}">Get Link</a> ]
+  [ <a href="subl:youtube_editor_get_video_link {{&quot;video_id&quot;:&quot;{video_id}&quot;}}">Get Link</a> ]
   [ <a href="subl:echo {{&quot;video_id&quot;:&quot;{video_id}&quot;}}">Edit</a> ]
   [ <a href="subl:youtube_editor_edit_in_studio {{&quot;video_id&quot;:&quot;{video_id}&quot;}}">Edit in Studio</a> ]
 </div>
