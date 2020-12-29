@@ -25,6 +25,22 @@ class YoutubeEditorEditVideoDetailsCommand(YouTubeVideoSelect, sublime_plugin.Ap
     video_placeholder = "Edit Details: Select video"
     video_tag_placeholder = "Edit Details: Select video in tag '{tag}'"
 
+    # This overloads the base version so that if we're given an explcit video
+    # ID, we will request the details for it directly instead of going through
+    # everything else.
+    def _authorized(self, request, result):
+        self.video_id = self.run_args.get("video_id")
+
+        self.use_tags = self.run_args.get("by_tags", False)
+        self.use_playlists = self.run_args.get("by_playlists", False)
+
+        if self.video_id:
+            self.request("video_details", video_id=self.video_id,
+                         reason="Get full video details for editing")
+        else:
+            self.request("channel_list", reason="Get Channel Info")
+
+
     def picked_video(self, video, tag, tag_list):
         self.request("video_details", video_id=video["id"],
                      reason="Get full video details for editing")
