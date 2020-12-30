@@ -624,7 +624,7 @@ class NetworkThread(Thread):
         if request["refresh"]:
             for video in video_ids:
                 if video in self.cache["video_details"]:
-                    del self.cache["video_details"][videp]
+                    del self.cache["video_details"][video]
 
         # Fetch the details for all requested videos; this will use the cache
         # to only return what's needed.
