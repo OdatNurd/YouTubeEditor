@@ -266,7 +266,8 @@ class NetworkThread(Thread):
             "channel_list": self.channel_list,
             "playlist_contents": self.playlist_contents,
             "playlist_list": self.playlist_list,
-            "video_details": self.video_details
+            "video_details": self.video_details,
+            "set_video_details": self.set_video_details
         }
 
     # def __del__(self):
@@ -632,6 +633,44 @@ class NetworkThread(Thread):
         save_cached_request_data(self.cache)
 
         return result
+
+    def set_video_details(self, request):
+        """
+        Given video details, dispatch a request to the YouTube Data API to
+        update the data for the given video to those details.
+
+        You must specify a part that says what data you're modifying as well as
+        a dictionary that contains the data to be updated, in the same format
+        that YouTube provides it to you if you were to ask for the same part.
+
+        Not all properties are mutable; it's safe to provide immutable data
+        items and they'll be ignored for the update.
+
+        The result of this request is a video_details result that contains the
+        new video data.
+
+        NOTE: Any video information that you don't provide here will be deleted
+              from the video on YouTube if it exists; so ensure that what you
+              provide this is what you want the data to be.
+        """
+        self.validate(request, {"part", "video_details"})
+
+        part = request["part"]
+        video_details = request["video_details"]
+
+        log("API: Update video details for: {0}", video_details["id"])
+
+        response = self.youtube.videos().update(
+            part=part,
+            body=video_details
+            ).execute()
+
+        new_details = dotty.dotty(response)
+        self.cache["video_details"][new_details['id']] = new_details
+
+        save_cached_request_data(self.cache)
+
+        return new_details
 
     def handle_request(self, request_obj):
         """
