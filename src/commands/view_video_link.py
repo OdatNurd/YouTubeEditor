@@ -29,7 +29,7 @@ class YoutubeEditorViewVideoLinkCommand(sublime_plugin.TextCommand):
     def is_enabled(self, video_id=None, timecode=None, event=None):
         s = self.view.window().settings()
         return (video_id is not None or
-               (s.get("_yte_youtube_window", False) and s.get("_yte_video_id")))
+               (s.get("_yte_youtube_window", False) and s.get("_yte_video_id") is not None))
 
     def want_event(self):
         return True
