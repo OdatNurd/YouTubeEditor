@@ -3,6 +3,8 @@
     { "command": "copy" },
     { "caption": "-", "id": "selection" },
     { "command": "select_all" },
+    { "caption": "-", "id": "editing" },
+    { "caption": "Commit changes to YouTube", "command": "youtube_editor_commit_details" },
     { "caption": "-", "id": "links" },
     { "command": "youtube_editor_copy_video_link" },
     { "command": "youtube_editor_view_video_link" },

@@ -5,6 +5,7 @@
     { "command": "youtube_editor_copy_video_link" },
     { "command": "youtube_editor_view_video_link" },
     { "caption": "-", "id": "editing" },
+    { "caption": "Commit changes to YouTube", "command": "youtube_editor_commit_details" },
     { "caption": "Edit in YouTube Studio", "command": "youtube_editor_edit_in_studio" },
     { "caption": "-", "id": "clipboard" },
     { "command": "copy" },
