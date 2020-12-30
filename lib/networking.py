@@ -31,9 +31,10 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 ###----------------------------------------------------------------------------
 
 
-# This OAuth 2.0 access scope allows for read-only access to the authenticated
-# user's account, but not other types of account access.
-SCOPES = ['https://www.googleapis.com/auth/youtube.readonly']
+# This OAuth 2.0 access scope allows for read-write access to the authenticated
+# user's account, allowing the app to do anything the user could do on the
+# YouTube site.
+SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
 
