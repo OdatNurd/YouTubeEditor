@@ -36,14 +36,14 @@ class YoutubeEditorEditVideoDetailsCommand(YouTubeVideoSelect, sublime_plugin.Ap
 
         if self.video_id:
             self.request("video_details", video_id=self.video_id,
-                         reason="Get full video details for editing")
+                         refresh=True, reason="Get full video details for editing")
         else:
             self.request("channel_list", reason="Get Channel Info")
 
 
     def picked_video(self, video, tag, tag_list):
         self.request("video_details", video_id=video["id"],
-                     reason="Get full video details for editing")
+                     refresh=True, reason="Get full video details for editing")
 
     def _video_details(self, request, result):
         video = result[0]
