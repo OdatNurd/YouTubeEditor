@@ -499,6 +499,7 @@ class NetworkThread(Thread):
 
         if channel_id in self.cache['channel_details']:
             if request["refresh"]:
+                log("API: Dropping channel detail cache")
                 self.cache["channel_list"] = []
             else:
                 return self.cache["channel_details"][channel_id]
@@ -518,6 +519,7 @@ class NetworkThread(Thread):
 
         if "channel_list" in self.cache and self.cache["channel_list"]:
             if request["refresh"]:
+                log("API: Dropping channel detail cache")
                 self.cache["channel_list"] = []
             else:
                 return self.cache["channel_list"]
@@ -565,6 +567,7 @@ class NetworkThread(Thread):
 
         if channel_id in self.cache["playlist_list"]:
             if request["refresh"]:
+                log("API: Dropping playlists for channel from cache: {0}", channel_id)
                 del self.cache["playlist_list"][channel_id]
             else:
                 return self.cache["playlist_list"][channel_id]
@@ -616,6 +619,7 @@ class NetworkThread(Thread):
 
         if playlist_id in self.cache['playlist_contents']:
             if request["refresh"]:
+                log("API: Dropping playlist contents from cache: {0}", playlist_id)
                 del self.cache["playlist_contents"][playlist_id]
 
                 # TODO: This clobbers playlist video details for every possible
@@ -694,6 +698,7 @@ class NetworkThread(Thread):
         if request["refresh"]:
             for video in video_ids:
                 if video in self.cache["video_details"]:
+                    log("API: Dropping video from cache: {0}", video)
                     del self.cache["video_details"][video]
 
         # Fetch the details for all requested videos; this will use the cache
