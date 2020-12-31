@@ -105,7 +105,7 @@ def display_output_panel():
     that the panel is desired.
     """
     window = sublime.active_window()
-    if window.active_panel() == 'output.YouTube Editor Log':
+    if window.active_panel() == 'output.YouTubeEditor Log':
         return
 
     # True for always, False for Never, number for Always (but autoclose);
@@ -116,7 +116,7 @@ def display_output_panel():
         return
 
     # Show the panel, and if desired autoclose it.
-    window.run_command("show_panel", {"panel": "output.YouTube Editor Log"})
+    window.run_command("show_panel", {"panel": "output.YouTubeEditor Log"})
     if isinstance(show_panel, bool) == False and isinstance(show_panel, int):
         close_panel_after_delay(window, show_panel * 1000)
 
