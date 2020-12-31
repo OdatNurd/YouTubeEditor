@@ -725,7 +725,7 @@ class NetworkThread(Thread):
         self.validate(request, {"part", "video_details"})
 
         part = request["part"]
-        video_details = request["video_details"]
+        video_details = filter_new_video_details(request["video_details"])
 
         log("API: Update video details for: {0}", video_details["id"])
 
