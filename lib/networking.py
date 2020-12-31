@@ -45,6 +45,45 @@ _PBKDF_Salt = "YouTubeEditorSaltValue".encode()
 # but for expediency in testing the password is currently hard coded.
 _PBKDF_Key = scrypt("password".encode(), _PBKDF_Salt, 1024, 1, 1, 32)
 
+# When using the set_video_details request, new video details need to be
+# provided for the update. The request itself allows you to provide a full
+# video details dictionary, but YouTube only allows certain keys to be present
+# or it will generate a 500 error (at least sometimes).
+#
+# Hence, we need to filter the incoming request to only those fields that
+# YouTube will allow to be updated.  This represents the structure that's
+# allowed to be modified; the top level keys are keys that can be present.
+#
+# The value of each key is either a set that indicates what fields are allowed
+# or, for values that are not themselves dictionaries, the value is a boolean.
+#
+# The filter will constrain what you provide to fit with this, though you don't
+# need to provide all the keys here.
+_set_video_keys = {
+    # The ID value is required in the input so that the API knows what video
+    # it is that you're trying to update.
+    "id": True,
+
+    # When updating the snippet, the title and categoryId values are mandatory
+    # as a part of the update.
+    "snippet": {
+        "title", "description", "tags", "categoryId", "defaultLanguage"
+    },
+
+    # When setting publishAt, you must also set privacyStatus to "private" to
+    # schedule the video to be published at that point.
+    "status": {
+        "embeddable", "license", "privacyStatus", "publicStatsViewable",
+        "publishAt", "selfDeclaredMadeForKids"
+    },
+
+    "recordingDetails": { "recordingDate" },
+
+    # Localizations are also allowed, but we're not filtering them here because
+    # internationalization is butts.
+    "localizations": True
+}
+
 
 ###----------------------------------------------------------------------------
 
@@ -59,6 +98,36 @@ class DottyEncoder(json.JSONEncoder):
             return o.to_dict()
 
         return json.JSONEncoder.default(self, o)
+
+
+###----------------------------------------------------------------------------
+
+
+def filter_new_video_details(details):
+    """
+    Given a video data dictionary as might be provided by a request for video
+    details, filter the keys in it to those which are allowed to be set via the
+    API in the set_video_details network request. The result is suitable for
+    being used to perform an update.
+
+    Note however that the restrictions put in place by the API still apply; not
+    providing a key that has a value already will make YouTube delete that
+    property (that is, this just makes the request formally correct and doesn't
+    guarantee that it will do what you want).
+    """
+    new_details = {}
+    for key in _set_video_keys:
+        if key not in details:
+            continue
+
+        if isinstance(_set_video_keys[key], bool):
+            new_details[key] = details[key]
+            continue
+
+        subkeys = _set_video_keys[key] & set(details[key].keys())
+        new_details[key] = {k: details[key][k] for k in subkeys}
+
+    return new_details
 
 
 ###----------------------------------------------------------------------------
