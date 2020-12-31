@@ -55,10 +55,10 @@ class YoutubeEditorEditVideoDetailsCommand(YouTubeVideoSelect, sublime_plugin.Ap
             'details': undotty_data(video)
             })
 
-        sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), video["id"]))
+        img_uri = video['snippet.thumbnails.standard.url']
+        sublime.set_timeout_async(lambda: self.load_thumbnail(sublime.active_window(), img_uri))
 
-    def load_thumbnail(self, window, video_id):
-        img_uri = 'https://i.ytimg.com/vi/%s/sddefault.jpg' % video_id
+    def load_thumbnail(self, window, img_uri):
         try:
             request = requests.get(img_uri, stream=True)
             data_uri = ("data:" + request.headers['Content-Type'] + ";" +
