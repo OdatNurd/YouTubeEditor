@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 
 from ..core import YoutubeRequest
-from ...lib import log
+from ...lib import log, undotty_data
 
 
 ## ----------------------------------------------------------------------------
@@ -22,7 +22,9 @@ class YoutubeEditorCommitDetailsCommand(YoutubeRequest,sublime_plugin.WindowComm
                      video_details=self.get_edited_details())
 
     def _set_video_details(self, request, result):
+        self.window.settings().set("_yte_video_details", undotty_data(result))
         log("PKG: Video details saved!")
+        sublime.status_message("Video details successfully updated!")
 
 
     def get_edited_details(self):
