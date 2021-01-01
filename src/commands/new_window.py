@@ -78,11 +78,15 @@ class YoutubeEditorNewWindowCommand(sublime_plugin.WindowCommand):
             view = new_window.new_file(syntax=yte_syntax(info["syntax"]))
             view.set_scratch(True)
             view.set_name(info["name"])
+
+            view.run_command('append', {'characters': info["body"]})
+
             view.settings().set(info["setting"], True)
             view.settings().set("context_menu", info["menu"])
             view.settings().set('youtube_view', True)
+            view.settings().set("_yte_content", info["body"])
+            view.settings().set("_yte_change_count", view.change_count())
 
-            view.run_command('append', {'characters': info["body"]})
 
 
 ###----------------------------------------------------------------------------
