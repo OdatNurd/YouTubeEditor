@@ -8,6 +8,39 @@ from ...lib import log, undotty_data
 ## ----------------------------------------------------------------------------
 
 
+def _groups_have_changes(window, groups):
+    """
+    Check the first view in the given group or groups of the provided window to
+    see if they have any changes made to them.
+
+    This requires that the tracking variables that we use to know about changes
+    in our scratch YouTubeEditor buffers have been set up.
+    """
+    if not isinstance(groups, list):
+        groups = [groups]
+
+    for group in groups:
+        view = window.views_in_group(group)[0]
+        settings = view.settings()
+
+        # If the change count is the same, we're good.
+        if view.change_count() == settings.get("_yte_change_count", -1):
+            continue
+
+        # If the content is the same, we're good (but update the stored change
+        # count so we don't need to do this next time).
+        elif view.substr(sublime.Region(0, len(view))) == settings.get("_yte_content"):
+            settings.set("_yte_change_count", view.change_count())
+            continue
+
+        return True
+
+    return False
+
+
+###----------------------------------------------------------------------------
+
+
 class YoutubeEditorCommitDetailsCommand(YoutubeRequest,sublime_plugin.WindowCommand):
     """
     This command is active only in a window that is a YouTube editor window
@@ -46,7 +79,8 @@ class YoutubeEditorCommitDetailsCommand(YoutubeRequest,sublime_plugin.WindowComm
         s = self.window.settings()
         return (s.get("_yte_youtube_window", False) and
                 s.get("_yte_video_id") is not None and
-                s.get("_yte_video_details") is not None)
+                s.get("_yte_video_details") is not None and
+                _groups_have_changes(self.window, [0, 1, 2]))
 
 
 ## ----------------------------------------------------------------------------
