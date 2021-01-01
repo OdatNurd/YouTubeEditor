@@ -1,5 +1,11 @@
 [
     {
+        "keys": ["super+s"],
+        "command": "youtube_editor_commit_details", "context": [
+            { "key": "setting.youtube_view" },
+        ]
+    },
+    {
         "keys": ["tab"],
         "command": "youtube_editor_next_view", "context": [
             { "key": "setting.youtube_view" },
