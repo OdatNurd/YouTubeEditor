@@ -26,4 +26,10 @@
             { "key": "setting.youtube_view" },
         ]
     },
+    {
+        "keys": ["ctrl+n"],
+        "command": "noop", "context": [
+            { "key": "setting.youtube_view" },
+        ]
+    },
 ]
