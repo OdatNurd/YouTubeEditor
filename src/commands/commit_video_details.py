@@ -23,6 +23,11 @@ def _groups_have_changes(window, groups):
         view = window.views_in_group(group)[0]
         settings = view.settings()
 
+        # Never allow an empty view to count as changes, so we don't clobber
+        # data with nothing.
+        if view.size() == 0:
+            return False
+
         # If the change count is the same, we're good.
         if view.change_count() == settings.get("_yte_change_count", -1):
             continue
