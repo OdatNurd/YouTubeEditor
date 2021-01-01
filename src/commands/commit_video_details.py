@@ -55,10 +55,10 @@ class YoutubeEditorCommitDetailsCommand(YoutubeRequest,sublime_plugin.WindowComm
                      video_details=self.get_edited_details())
 
     def _set_video_details(self, request, result):
-        self.window.settings().set("_yte_video_details", undotty_data(result))
+        self.update_stored_data(result)
+
         log("PKG: Video details saved!")
         sublime.status_message("Video details successfully updated!")
-
 
     def get_edited_details(self):
         details = self.window.settings().get("_yte_video_details")
@@ -70,6 +70,14 @@ class YoutubeEditorCommitDetailsCommand(YoutubeRequest,sublime_plugin.WindowComm
         details['snippet']['tags'] = [t.strip() for t in tags if t != ''];
 
         return details
+
+    def update_stored_data(self, result):
+        self.window.settings().set("_yte_video_details", undotty_data(result))
+
+        for group in range(3):
+            view = self.window.views_in_group(group)[0]
+            view.settings().set("_yte_change_count", view.change_count())
+            view.settings().set("_yte_content", view.substr(sublime.Region(0, len(view))))
 
     def get_new_data(self, group):
         view = self.window.views_in_group(group)[0]
