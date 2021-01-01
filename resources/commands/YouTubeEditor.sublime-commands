@@ -33,20 +33,36 @@
     { "caption": "YouTubeEditor: Show videos with missing TOC", "command": "youtube_editor_missing_contents" },
 
     {
-        "caption": "Preferences: YouTubeEditor Settings",
-        "command": "edit_settings",
-        "args": {
-            "base_file": "${packages}/YouTubeEditor/resources/settings/YouTubeEditor.sublime-settings",
-            "default": "{\n\t$0\n}\n"
-        }
+      "caption": "YouTubeEditor: Open YouTube Studio",
+      "command": "youtube_editor_open_url",
+      "args": {
+        "url": "https://studio.youtube.com/channel/${channel_id}"
+      }
+    },
+
+    {
+      "caption": "YouTubeEditor: View YouTube Channel",
+      "command": "youtube_editor_open_url",
+      "args": {
+        "url": "https://www.youtube.com/channel/${channel_id}"
+      }
+    },
+
+    {
+      "caption": "Preferences: YouTubeEditor Settings",
+      "command": "edit_settings",
+      "args": {
+        "base_file": "${packages}/YouTubeEditor/resources/settings/YouTubeEditor.sublime-settings",
+        "default": "{\n\t$0\n}\n"
+      }
     },
     {
-        "caption": "Preferences: YouTubeEditor Key Bindings",
-        "command": "edit_settings",
-        "args": {
-            "base_file": "${packages}/YouTubeEditor/resources/keymaps/Default ($platform).sublime-keymap",
-            "default": "[\n\t$0\n]\n"
-        }
+      "caption": "Preferences: YouTubeEditor Key Bindings",
+      "command": "edit_settings",
+      "args": {
+        "base_file": "${packages}/YouTubeEditor/resources/keymaps/Default ($platform).sublime-keymap",
+        "default": "[\n\t$0\n]\n"
+      }
     },
 
 ]

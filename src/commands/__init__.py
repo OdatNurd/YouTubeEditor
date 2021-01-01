@@ -4,7 +4,8 @@ reload("src.commands", ["authorize", "logout", "get_video_link",
                         "edit_video_details", "new_window", "navigate",
                         "get_camtasia_toc", "copy_video_link", "edit_in_studio",
                         "view_video_link", "clear_log", "flush_cache",
-                        "missing_toc_util", "commit_video_details"])
+                        "missing_toc_util", "commit_video_details",
+                        "open_url"])
 
 from .authorize import YoutubeEditorAuthorizeCommand
 from .logout import YoutubeEditorLogoutCommand
@@ -17,6 +18,7 @@ from .copy_video_link import YoutubeEditorCopyVideoLinkCommand
 from .view_video_link import YoutubeEditorViewVideoLinkCommand
 from .edit_in_studio import YoutubeEditorEditInStudioCommand
 from .commit_video_details import YoutubeEditorCommitDetailsCommand
+from .open_url import YoutubeEditorOpenUrlCommand
 from .clear_log import YoutubeEditorClearLogCommand
 from .flush_cache import YoutubeEditorFlushCacheCommand
 from .missing_toc_util import YoutubeEditorMissingContentsCommand
@@ -31,6 +33,7 @@ __all__ = [
     "YoutubeEditorEditVideoDetailsCommand",
     "YoutubeEditorEditInStudioCommand",
     "YoutubeEditorCommitDetailsCommand",
+    "YoutubeEditorOpenUrlCommand",
 
     # Open a new window with video details
     "YoutubeEditorNewWindowCommand",

@@ -27,6 +27,7 @@ __all__ = [
     "YoutubeEditorViewVideoLinkCommand",
     "YoutubeEditorEditInStudioCommand",
     "YoutubeEditorCommitDetailsCommand",
+    "YoutubeEditorOpenUrlCommand",
     "YoutubeEditorClearLogCommand",
     "YoutubeEditorFlushCacheCommand",
     "YoutubeEditorMissingContentsCommand",
